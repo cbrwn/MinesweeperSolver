@@ -124,24 +124,22 @@ namespace MinesweeperSolver {
                     // Click a square around a clicked where the clicked's bombs have all been found
                     if (board.GetSquare(x, y) - bombs.Count == 0) {
                         ClickSquareList(clicks, ref board);
-                        //return true;
                         clicked = true;
                     }
 
                     // Flag a guaranteed bomb
-                    if (board.GetSquare(x, y) == clicks.Count + bombs.Count) {
-                        ClickSquareList(clicks, ref board, true);
-                        //return true;
-                        clicked = true;
-                    }
+                    if (board.GetSquare(x, y) != clicks.Count + bombs.Count)
+                        continue;
+                    ClickSquareList(clicks, ref board, true);
+                    clicked = true;
                 }
-                if (tmr.Elapsed.TotalMilliseconds >= 500) {
-                    tmr.Restart();
-                    if (!FindSweeperWindow(true))
-                        return true;
-                }
+                if (!(tmr.Elapsed.TotalMilliseconds >= 500))
+                    continue;
+                tmr.Restart();
+                if (!FindSweeperWindow(true))
+                    return true;
             }
-            if (clicked)
+            if (clicked) // Leave this method and re-process the board, no need to start guessing yet
                 return true;
 
             // Now we need to guess
