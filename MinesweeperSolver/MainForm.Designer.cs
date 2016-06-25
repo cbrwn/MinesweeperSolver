@@ -34,9 +34,17 @@ namespace MinesweeperSolver {
             this.btnSolve = new System.Windows.Forms.Button();
             this.imgGame = new System.Windows.Forms.PictureBox();
             this.pnlGameImage = new System.Windows.Forms.GroupBox();
+            this.chkStopWin = new System.Windows.Forms.CheckBox();
+            this.tckTries = new System.Windows.Forms.NumericUpDown();
+            this.lblMaxTries = new System.Windows.Forms.Label();
+            this.chkSaveWin = new System.Windows.Forms.CheckBox();
+            this.chkSaveLoss = new System.Windows.Forms.CheckBox();
+            this.chkSaveGame = new System.Windows.Forms.CheckBox();
+            this.chkSaveBrain = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.imgGame)).BeginInit();
             this.pnlGameImage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tckTries)).BeginInit();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -107,11 +115,99 @@ namespace MinesweeperSolver {
             this.pnlGameImage.TabStop = false;
             this.pnlGameImage.Text = "Bot Brain";
             // 
+            // chkStopWin
+            // 
+            this.chkStopWin.AutoSize = true;
+            this.chkStopWin.Checked = true;
+            this.chkStopWin.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkStopWin.Location = new System.Drawing.Point(91, 4);
+            this.chkStopWin.Name = "chkStopWin";
+            this.chkStopWin.Size = new System.Drawing.Size(82, 17);
+            this.chkStopWin.TabIndex = 6;
+            this.chkStopWin.Text = "Stop on win";
+            this.chkStopWin.UseVisualStyleBackColor = true;
+            // 
+            // tckTries
+            // 
+            this.tckTries.Location = new System.Drawing.Point(163, 23);
+            this.tckTries.Maximum = new decimal(new int[] {
+            999999999,
+            0,
+            0,
+            0});
+            this.tckTries.Name = "tckTries";
+            this.tckTries.Size = new System.Drawing.Size(48, 20);
+            this.tckTries.TabIndex = 7;
+            // 
+            // lblMaxTries
+            // 
+            this.lblMaxTries.AutoSize = true;
+            this.lblMaxTries.Location = new System.Drawing.Point(88, 25);
+            this.lblMaxTries.Name = "lblMaxTries";
+            this.lblMaxTries.Size = new System.Drawing.Size(73, 13);
+            this.lblMaxTries.TabIndex = 8;
+            this.lblMaxTries.Text = "Maximum tries";
+            // 
+            // chkSaveWin
+            // 
+            this.chkSaveWin.AutoSize = true;
+            this.chkSaveWin.Checked = true;
+            this.chkSaveWin.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkSaveWin.Location = new System.Drawing.Point(172, 4);
+            this.chkSaveWin.Name = "chkSaveWin";
+            this.chkSaveWin.Size = new System.Drawing.Size(107, 17);
+            this.chkSaveWin.TabIndex = 9;
+            this.chkSaveWin.Text = "Screenshot Wins";
+            this.chkSaveWin.UseVisualStyleBackColor = true;
+            // 
+            // chkSaveLoss
+            // 
+            this.chkSaveLoss.AutoSize = true;
+            this.chkSaveLoss.Checked = true;
+            this.chkSaveLoss.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkSaveLoss.Location = new System.Drawing.Point(280, 4);
+            this.chkSaveLoss.Name = "chkSaveLoss";
+            this.chkSaveLoss.Size = new System.Drawing.Size(104, 17);
+            this.chkSaveLoss.TabIndex = 10;
+            this.chkSaveLoss.Text = "Screenshot Fails";
+            this.chkSaveLoss.UseVisualStyleBackColor = true;
+            // 
+            // chkSaveGame
+            // 
+            this.chkSaveGame.AutoSize = true;
+            this.chkSaveGame.Checked = true;
+            this.chkSaveGame.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkSaveGame.Location = new System.Drawing.Point(217, 24);
+            this.chkSaveGame.Name = "chkSaveGame";
+            this.chkSaveGame.Size = new System.Drawing.Size(54, 17);
+            this.chkSaveGame.TabIndex = 11;
+            this.chkSaveGame.Text = "Game";
+            this.chkSaveGame.UseVisualStyleBackColor = true;
+            // 
+            // chkSaveBrain
+            // 
+            this.chkSaveBrain.AutoSize = true;
+            this.chkSaveBrain.Checked = true;
+            this.chkSaveBrain.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkSaveBrain.Location = new System.Drawing.Point(270, 24);
+            this.chkSaveBrain.Name = "chkSaveBrain";
+            this.chkSaveBrain.Size = new System.Drawing.Size(50, 17);
+            this.chkSaveBrain.TabIndex = 12;
+            this.chkSaveBrain.Text = "Brain";
+            this.chkSaveBrain.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(397, 335);
+            this.Controls.Add(this.chkSaveBrain);
+            this.Controls.Add(this.chkSaveGame);
+            this.Controls.Add(this.chkSaveLoss);
+            this.Controls.Add(this.chkSaveWin);
+            this.Controls.Add(this.lblMaxTries);
+            this.Controls.Add(this.tckTries);
+            this.Controls.Add(this.chkStopWin);
             this.Controls.Add(this.pnlGameImage);
             this.Controls.Add(this.btnSolve);
             this.Controls.Add(this.statusStrip1);
@@ -125,6 +221,7 @@ namespace MinesweeperSolver {
             this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.imgGame)).EndInit();
             this.pnlGameImage.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.tckTries)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -139,6 +236,13 @@ namespace MinesweeperSolver {
         private Button btnSolve;
         private PictureBox imgGame;
         private GroupBox pnlGameImage;
+        private CheckBox chkStopWin;
+        private NumericUpDown tckTries;
+        private Label lblMaxTries;
+        private CheckBox chkSaveWin;
+        private CheckBox chkSaveLoss;
+        private CheckBox chkSaveGame;
+        private CheckBox chkSaveBrain;
     }
 }
 

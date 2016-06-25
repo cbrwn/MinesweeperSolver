@@ -14,6 +14,13 @@ namespace MinesweeperSolver {
 
             if (!Directory.Exists(_screenshotLocation))
                 Directory.CreateDirectory(_screenshotLocation);
+            SetToolTips();
+        }
+
+        private void SetToolTips() {
+            var t = new ToolTip();
+            t.SetToolTip(tckTries, @"Set to 0 for unlimited");
+            t.SetToolTip(lblMaxTries, @"Set to 0 for unlimited");
         }
 
         private void StartSolve(object sender, EventArgs e) {
@@ -64,7 +71,8 @@ namespace MinesweeperSolver {
                 strStatus.Text = @"Solving...";
             });
 
-            // Stop this loop on button click (Running), form exit or completion
+            var tries = 0;
+            // Stop this loop on button click (Running) or form exit
             while (MineSolver.Running && !IsDisposed) {
                 // Grab new screenshot
                 var img = ScreenHelper.GetMinesweeperScreenshot();
@@ -78,13 +86,24 @@ namespace MinesweeperSolver {
                         continue;
                     willDoubleScreenshot = true;
                     Console.WriteLine(@"Failed!");
+                    if (chkSaveLoss.Checked) {
+                        var boardSizeDirectory = Path.Combine(_screenshotLocation, $"{board.Columns}x{board.Rows}");
+                        if (!Directory.Exists(boardSizeDirectory))
+                            Directory.CreateDirectory(boardSizeDirectory);
+                        var filename = Path.Combine(boardSizeDirectory, $"{board.Score}%-fail-{(int) DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}-");
+                        if (chkSaveBrain.Checked) {
+                            board.GetVisualization().Save(filename + "brain.png");
+                            Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}brain.png");
+                        }
+                        if (chkSaveGame.Checked) {
+                            img.Save(filename + "game.png");
+                            Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}game.png");
+                        }
+                    }
+                    if (tckTries.Value > 0 && tries > tckTries.Value)
+                        break;
+                    tries++;
                     MineSolver.ClickSweeperRestart();
-                    var boardSizeDirectory = Path.Combine(_screenshotLocation, $"{board.Columns}x{board.Rows}");
-                    if (!Directory.Exists(boardSizeDirectory))
-                        Directory.CreateDirectory(boardSizeDirectory);
-                    var filename = Path.Combine(boardSizeDirectory, $"{board.Score}-fail-{(int) DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}.png");
-                    Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}");
-                    img.Save(filename);
                     continue;
                 }
 
@@ -94,13 +113,24 @@ namespace MinesweeperSolver {
                         continue;
                     willDoubleScreenshot = true;
                     Console.WriteLine(@"Won!");
-                    var successDirectory = Path.Combine(_screenshotLocation, $"Wins");
-                    if (!Directory.Exists(successDirectory))
-                        Directory.CreateDirectory(successDirectory);
-                    var filename = Path.Combine(successDirectory, $"win-{(int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}.png");
-                    Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}");
-                    img.Save(filename);
-                    break;
+                    if (chkSaveWin.Checked) {
+                        var successDirectory = Path.Combine(_screenshotLocation, $"Wins");
+                        if (!Directory.Exists(successDirectory))
+                            Directory.CreateDirectory(successDirectory);
+                        var filename = Path.Combine(successDirectory, $"{board.Columns}x{board.Rows}-win-{(int) DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}-");
+                        if (chkSaveBrain.Checked) {
+                            board.GetVisualization().Save(filename + "brain.png");
+                            Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}brain.png");
+                        }
+                        if (chkSaveGame.Checked) {
+                            img.Save(filename + "game.png");
+                            Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}game.png");
+                        }
+                    }
+                    if (chkStopWin.Checked)
+                        break;
+                    MineSolver.ClickSweeperRestart();
+                    continue;
                 }
                 willDoubleScreenshot = false;
 
