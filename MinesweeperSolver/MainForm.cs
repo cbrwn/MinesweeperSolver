@@ -36,7 +36,7 @@ namespace MinesweeperSolver {
             Invoke((MethodInvoker) delegate {
                 btnSolve.Text = @"Stop";
                 strWaiting.Visible = true;
-                strStatus.Text = @"Solving...";
+                strStatus.Text = @"Finding Minesweeper...";
             });
 
             if (!MineSolver.FindSweeperWindow()) {
@@ -61,6 +61,7 @@ namespace MinesweeperSolver {
                 strWaiting.Style = ProgressBarStyle.Continuous;
                 strWaiting.Value = 0;
                 strWaiting.Maximum = 100;
+                strStatus.Text = @"Solving...";
             });
 
             // Stop this loop on button click (Running), form exit or completion
