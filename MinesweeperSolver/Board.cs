@@ -43,7 +43,7 @@ namespace MinesweeperSolver {
         public bool IsComplete => Squares.Cast<int>().All(i => i != -1);
         public bool IsNew => Squares.Cast<int>().All(i => i == -1);
         public bool IsFailed => (from int i in Squares where i == 100 select i).Any();
-        public int Score => (int)(100*(Squares.Cast<int>().Count(i => i != -1)/(double)Squares.Length));
+        public int Score => (int) (100*(Squares.Cast<int>().Count(i => i != -1)/(double) Squares.Length));
 
         /// <summary>
         ///     Updates the board state.
@@ -122,6 +122,13 @@ namespace MinesweeperSolver {
             return Squares[pos.Y, pos.X];
         }
 
+        /// <summary>
+        ///     Grabs a visualization of squares and their preceived probability of being a bomb
+        ///     Closer to green = safer to click
+        ///     Closer to red = more dangerous
+        ///     Pink = is bomb
+        /// </summary>
+        /// <returns>Bitmap of the visualization</returns>
         public Bitmap GetVisualization() {
             var result = new Bitmap(Columns*8, Rows*8);
             using (var g = Graphics.FromImage(result)) {
@@ -129,12 +136,12 @@ namespace MinesweeperSolver {
                     for (var x = 0; x < Columns; x++) {
                         var col = Color.Gray;
                         var pos = SweeperHelper.GetBombProbability(this, x, y);
-                        if (GetSquare(x, y) == 9) {
+                        if (GetSquare(x, y) == 9)
                             col = Color.Magenta;
-                        } else if (pos > 100) {
+                        else if (pos > 100)
                             col = Color.DarkBlue;
-                        } else if (pos > 50) {
-                            var n = (int)(255*((pos - 50)/50d));
+                        else if (pos > 50) {
+                            var n = (int) (255*((pos - 50)/50d));
                             col = Color.FromArgb(255, Math.Abs(n - 50), 0);
                         } else if (pos > 0) {
                             var n = (int) (255*(pos/50d));
