@@ -96,6 +96,9 @@ namespace MinesweeperSolver {
             // 
             // pnlGameImage
             // 
+            this.pnlGameImage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlGameImage.Controls.Add(this.imgGame);
             this.pnlGameImage.Location = new System.Drawing.Point(10, 41);
             this.pnlGameImage.Name = "pnlGameImage";
@@ -113,8 +116,6 @@ namespace MinesweeperSolver {
             this.Controls.Add(this.btnSolve);
             this.Controls.Add(this.statusStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(413, 374);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

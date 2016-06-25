@@ -81,6 +81,7 @@ namespace MinesweeperSolver {
                     if (!Directory.Exists(boardSizeDirectory))
                         Directory.CreateDirectory(boardSizeDirectory);
                     var filename = Path.Combine(boardSizeDirectory, $"{board.Score}-fail-{(int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}.png");
+                    Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}");
                     img.Save(filename);
                     continue;
                 }
@@ -104,7 +105,7 @@ namespace MinesweeperSolver {
                 }
 
                 // Update picturebox - might change to an image based on what the bot sees for more insight
-                imgGame.Image = img;
+                imgGame.Image = board.GetVisualization();//img;
                 Invoke((MethodInvoker)delegate {
                     strWaiting.Value = board.Score;
                 });

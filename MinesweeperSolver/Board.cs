@@ -121,6 +121,31 @@ namespace MinesweeperSolver {
         public int GetSquare(Point pos) {
             return Squares[pos.Y, pos.X];
         }
+
+        public Bitmap GetVisualization() {
+            var result = new Bitmap(Columns*8, Rows*8);
+            using (var g = Graphics.FromImage(result)) {
+                for (var y = 0; y < Rows; y++) {
+                    for (var x = 0; x < Columns; x++) {
+                        var col = Color.Gray;
+                        var pos = SweeperHelper.GetBombProbability(this, x, y);
+                        if (GetSquare(x, y) == 9) {
+                            col = Color.Magenta;
+                        } else if (pos > 100) {
+                            col = Color.DarkBlue;
+                        } else if (pos > 50) {
+                            var n = (int)(255*((pos - 50)/50d));
+                            col = Color.FromArgb(255, Math.Abs(n - 50), 0);
+                        } else if (pos > 0) {
+                            var n = (int) (255*(pos/50d));
+                            col = Color.FromArgb(n, 255, 0);
+                        }
+                        g.FillRectangle(new SolidBrush(col), x*8, y*8, 8, 8);
+                    }
+                }
+            }
+            return result;
+        }
     }
 
 }
