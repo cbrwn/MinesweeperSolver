@@ -145,16 +145,22 @@ namespace MinesweeperSolver {
                 return true;
 
             // Now we need to guess
-            Console.WriteLine(@"Guessing...");
+            var lowestProb = 1000d;
+            int lx = 0, ly = 0;
             for (var y = 0; y < board.Rows; y++) {
                 for (var x = 0; x < board.Columns; x++) {
-                    var clicks = SweeperHelper.GetSurroundingClicks(board, x, y);
-                    if (clicks.Count == 0)
+                    if (board.GetSquare(x, y) != -1)
                         continue;
-                    ClickSweeperSquare(clicks[0], ref board);
-                    return true;
+                    var prob = SweeperHelper.GetBombProbability(board, x, y);
+                    if (prob >= lowestProb)
+                        continue;
+                    lowestProb = prob;
+                    lx = x;
+                    ly = y;
                 }
             }
+            Console.WriteLine($"Guessed ({lx},{ly}) with probability of {lowestProb}%");
+            ClickSweeperSquare(lx, ly, ref board, lowestProb>50);
             return true;
         }
     }
