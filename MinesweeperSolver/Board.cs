@@ -134,9 +134,10 @@ namespace MinesweeperSolver {
             using (var g = Graphics.FromImage(result)) {
                 for (var y = 0; y < Rows; y++) {
                     for (var x = 0; x < Columns; x++) {
-                        var col = Color.Gray;
+                        var col = NumberColors[0];
                         var pos = SweeperHelper.GetBombProbability(this, x, y);
-                        if (GetSquare(x, y) == 9)
+                        var val = GetSquare(x, y);
+                        if (val == 9)
                             col = Color.Magenta;
                         else if (pos > 100)
                             col = Color.DarkBlue;
@@ -148,6 +149,11 @@ namespace MinesweeperSolver {
                             col = Color.FromArgb(n, 255, 0);
                         }
                         g.FillRectangle(new SolidBrush(col), x*8, y*8, 8, 8);
+                        if (val > 0 && val < 9) {
+                            var textCol = NumberColors[val];
+                            g.DrawString(val.ToString(), new Font(FontFamily.GenericMonospace, 6, FontStyle.Bold), new SolidBrush(textCol), 1 + x * 8, -1 + y * 8);
+                        }
+                        g.DrawRectangle(new Pen(Color.Gray), x * 8, y * 8, 8, 8);
                     }
                 }
             }
