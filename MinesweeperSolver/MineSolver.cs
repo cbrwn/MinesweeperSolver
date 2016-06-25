@@ -157,13 +157,9 @@ namespace MinesweeperSolver {
                     ly = y;
                 }
             }
-            // If we're wanting to click a square with no hints (returns 101%) then something has gone wrong
-            // Exit and re-process the board in the main loop and hopefully it'll fix itself
-            if (lowestProb > 100)
-                return true;
             Console.WriteLine($"Guessed ({lx},{ly}) with probability of {lowestProb}%");
             // Guess that it's a bomb if the bomb probability is over 50%
-            ClickSweeperSquare(lx, ly, ref board, lowestProb>50);
+            ClickSweeperSquare(lx, ly, ref board, lowestProb>50 && lowestProb != 100);
             return true;
         }
     }
