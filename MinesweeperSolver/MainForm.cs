@@ -7,8 +7,7 @@ using System.Windows.Forms;
 namespace MinesweeperSolver {
 
     public partial class MainForm : Form {
-
-        private string _screenshotLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MinesweeperFails");
+        private readonly string _screenshotLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MinesweeperFails");
 
         public MainForm() {
             InitializeComponent();
@@ -46,6 +45,7 @@ namespace MinesweeperSolver {
                     strWaiting.Visible = false;
                     strStatus.Text = @"Couldn't find game!";
                 });
+                MineSolver.Running = false;
                 return;
             }
 
@@ -57,8 +57,7 @@ namespace MinesweeperSolver {
 
             var failedLast = false; // whether or not the bot failed last time - to stop multiple screenshots without limiting performance
 
-
-            Invoke((MethodInvoker)delegate {
+            Invoke((MethodInvoker) delegate {
                 strWaiting.Style = ProgressBarStyle.Continuous;
                 strWaiting.Value = 0;
                 strWaiting.Maximum = 100;
@@ -80,7 +79,7 @@ namespace MinesweeperSolver {
                     var boardSizeDirectory = Path.Combine(_screenshotLocation, $"{board.Columns}x{board.Rows}");
                     if (!Directory.Exists(boardSizeDirectory))
                         Directory.CreateDirectory(boardSizeDirectory);
-                    var filename = Path.Combine(boardSizeDirectory, $"{board.Score}-fail-{(int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}.png");
+                    var filename = Path.Combine(boardSizeDirectory, $"{board.Score}-fail-{(int) DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}.png");
                     Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}");
                     img.Save(filename);
                     continue;
@@ -105,10 +104,8 @@ namespace MinesweeperSolver {
                 }
 
                 // Update picturebox - might change to an image based on what the bot sees for more insight
-                imgGame.Image = board.GetVisualization();//img;
-                Invoke((MethodInvoker)delegate {
-                    strWaiting.Value = board.Score;
-                });
+                imgGame.Image = board.GetVisualization(); //img;
+                Invoke((MethodInvoker) delegate { strWaiting.Value = board.Score; });
             }
 
             // Done!
