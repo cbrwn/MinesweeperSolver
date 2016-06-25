@@ -68,6 +68,8 @@ namespace MinesweeperSolver {
                 // Grab new screenshot
                 var img = ScreenHelper.GetMinesweeperScreenshot();
                 board.Update(img, willDoubleScreenshot);
+                // Update the image as soon as updated
+                imgGame.Image = board.GetVisualization();
 
                 // Fail
                 if (board.IsFailed) {
@@ -117,9 +119,6 @@ namespace MinesweeperSolver {
                     if (!MineSolver.FindSweeperWindow(true))
                         break;
                 }
-
-                // Update picturebox - might change to an image based on what the bot sees for more insight
-                imgGame.Image = board.GetVisualization(); //img;
                 Invoke((MethodInvoker) delegate { strWaiting.Value = board.Score; });
             }
 

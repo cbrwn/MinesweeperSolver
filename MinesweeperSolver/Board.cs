@@ -100,8 +100,8 @@ namespace MinesweeperSolver {
                     break;
                 }
                 // Black in middle - could be a bomb!
-                if (Squares[row, col] == 7 && image.GetPixel(xpos + 4, ypos + 4) == Color.FromArgb(255, 255, 255)) {
-                    // Bomb has white shimmer on it at 4,4 to 6,6
+                if (Squares[row, col] == 7 && image.GetPixel(xpos + 5, ypos + 5) == Color.FromArgb(255, 255, 255)) {
+                    // Bomb has white shimmer on it at 5,5 to 7,7
                     Squares[row, col] = 100;
                 }
             }
@@ -144,6 +144,8 @@ namespace MinesweeperSolver {
                         var val = GetSquare(x, y);
                         if (val == 9)
                             col = Color.Magenta;
+                        else if (val > -1 && val < 9)
+                            col = NumberColors[0];
                         else if (pos > 100)
                             col = Color.DarkBlue;
                         else if (pos > 50) {
