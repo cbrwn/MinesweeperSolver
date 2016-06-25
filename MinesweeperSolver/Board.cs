@@ -149,7 +149,7 @@ namespace MinesweeperSolver {
                         else if (pos > 50) {
                             var n = (int) (255*((pos - 50)/50d));
                             col = Color.FromArgb(255, Math.Abs(n - 50), 0);
-                        } else if (pos > 0) {
+                        } else if (pos >= 0) {
                             var n = (int) (255*(pos/50d));
                             col = Color.FromArgb(n, 255, 0);
                         } else if (pos == 101) {
