@@ -1,9 +1,12 @@
-﻿namespace MinesweeperSolver {
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace MinesweeperSolver {
     partial class MainForm {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -128,13 +131,13 @@
 
         #endregion
 
-        private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ToolStripStatusLabel strStatusTitle;
-        private System.Windows.Forms.ToolStripStatusLabel strStatus;
-        private System.Windows.Forms.ToolStripProgressBar strWaiting;
-        private System.Windows.Forms.Button btnSolve;
-        private System.Windows.Forms.PictureBox imgGame;
-        private System.Windows.Forms.GroupBox pnlGameImage;
+        private StatusStrip statusStrip1;
+        private ToolStripStatusLabel strStatusTitle;
+        private ToolStripStatusLabel strStatus;
+        private ToolStripProgressBar strWaiting;
+        private Button btnSolve;
+        private PictureBox imgGame;
+        private GroupBox pnlGameImage;
     }
 }
 

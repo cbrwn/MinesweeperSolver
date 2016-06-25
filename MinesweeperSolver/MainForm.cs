@@ -57,6 +57,13 @@ namespace MinesweeperSolver {
 
             var failedLast = false; // whether or not the bot failed last time - to stop multiple screenshots without limiting performance
 
+
+            Invoke((MethodInvoker)delegate {
+                strWaiting.Style = ProgressBarStyle.Continuous;
+                strWaiting.Value = 0;
+                strWaiting.Maximum = 100;
+            });
+
             // Stop this loop on button click (Running), form exit or completion
             while (MineSolver.Running && !IsDisposed && !board.IsComplete) {
                 // Grab new screenshot
@@ -98,6 +105,9 @@ namespace MinesweeperSolver {
 
                 // Update picturebox - might change to an image based on what the bot sees for more insight
                 imgGame.Image = img;
+                Invoke((MethodInvoker)delegate {
+                    strWaiting.Value = board.Score;
+                });
             }
 
             // Done!
