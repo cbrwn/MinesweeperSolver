@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 
 namespace MinesweeperSolver {
 
     public partial class MainForm : Form {
+
+        private string _screenshotLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MinesweeperFails");
+
         public MainForm() {
             InitializeComponent();
+
+            if (!Directory.Exists(_screenshotLocation))
+                Directory.CreateDirectory(_screenshotLocation);
         }
 
         private void StartSolve(object sender, EventArgs e) {
@@ -63,7 +70,8 @@ namespace MinesweeperSolver {
                     failedLast = true;
                     Console.WriteLine(@"Failed!");
                     MineSolver.ClickSweeperRestart();
-                    img.Save(@"C:\Users\Cameron\Pictures\Minesweeper Losses\fail" + (int) DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds + ".png");
+                    var filename = Path.Combine(_screenshotLocation, $"fail{(int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}.png");
+                    img.Save(filename);
                     continue;
                 }
                 failedLast = false;
