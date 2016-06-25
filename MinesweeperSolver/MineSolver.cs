@@ -149,7 +149,7 @@ namespace MinesweeperSolver {
             int lx = 0, ly = 0;
             for (var y = 0; y < board.Rows; y++) {
                 for (var x = 0; x < board.Columns; x++) {
-                    if (board.GetSquare(x, y) != -1)
+                    if (board.GetSquare(x, y) != -1) // Only want to search through unclicked (-1)
                         continue;
                     var prob = SweeperHelper.GetBombProbability(board, x, y);
                     if (prob >= lowestProb)
@@ -160,6 +160,7 @@ namespace MinesweeperSolver {
                 }
             }
             Console.WriteLine($"Guessed ({lx},{ly}) with probability of {lowestProb}%");
+            // Guess that it's a bomb if the bomb probability is over 50%
             ClickSweeperSquare(lx, ly, ref board, lowestProb>50);
             return true;
         }

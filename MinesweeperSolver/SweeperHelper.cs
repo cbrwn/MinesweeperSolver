@@ -83,10 +83,12 @@ namespace MinesweeperSolver {
             var probabilities = new List<double>();
             foreach (var p in surrounding) {
                 var val = board.GetSquare(p);
-                if (val == 0) // If a surrounding square has no nearby bombs, this one can't be a bomb
-                    return 0;
-                if (val == 1) // If there's 1 bomb nearby a surrounding square and this one hasn't been clicked, it must be a bomb
-                    return 100;
+                switch (val) {
+                    case 0: // If a surrounding square has no nearby bombs, this one can't be a bomb
+                        return 0;
+                    case 1: // If there's 1 bomb nearby a surrounding square and this one hasn't been clicked, it must be a bomb
+                        return 100;
+                }
                 var clicks = GetSurroundingClicks(board, p.X, p.Y);
                 if (clicks.Count == 0) // If a surrounding square can't be clicked on, this one must either be clicked or a bomb (should never happen, just stopping div by zero in case it does)
                     return 0;
@@ -94,11 +96,11 @@ namespace MinesweeperSolver {
 
                 val -= bombs.Count; // How many bombs we still need to find
 
-                // Remaining bombs /
+                // Remaining bombs / total clickable
                 probabilities.Add(100*((double) val/clicks.Count));
             }
-
-            return (double)probabilities.Sum()/probabilities.Count;
+            // Grab the average probability
+            return probabilities.Sum()/probabilities.Count;
         }
     }
 
