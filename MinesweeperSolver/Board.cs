@@ -43,6 +43,7 @@ namespace MinesweeperSolver {
         public bool IsComplete => Squares.Cast<int>().All(i => i != -1);
         public bool IsNew => Squares.Cast<int>().All(i => i == -1);
         public bool IsFailed => (from int i in Squares where i == 100 select i).Any();
+        public int Score => Squares.Cast<int>().Count(i => i == 9);
 
         /// <summary>
         ///     Updates the board state.

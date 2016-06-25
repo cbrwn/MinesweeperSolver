@@ -70,7 +70,10 @@ namespace MinesweeperSolver {
                     failedLast = true;
                     Console.WriteLine(@"Failed!");
                     MineSolver.ClickSweeperRestart();
-                    var filename = Path.Combine(_screenshotLocation, $"fail{(int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}.png");
+                    var boardSizeDirectory = Path.Combine(_screenshotLocation, $"{board.Columns}x{board.Rows}");
+                    if (!Directory.Exists(boardSizeDirectory))
+                        Directory.CreateDirectory(boardSizeDirectory);
+                    var filename = Path.Combine(boardSizeDirectory, $"{board.Score}-fail-{(int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}.png");
                     img.Save(filename);
                     continue;
                 }
