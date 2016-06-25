@@ -78,7 +78,7 @@ namespace MinesweeperSolver {
                 InputHelper.LeftClick(posx, posy);
                 board.Squares[y, x] = -3;
             }
-            Thread.Sleep(2);
+            Thread.Sleep(6);
         }
 
         /// <summary>
