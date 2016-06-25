@@ -100,7 +100,7 @@ namespace MinesweeperSolver {
                     break;
                 }
                 // Black in middle - could be a bomb!
-                if (Squares[row, col] == 7 && image.GetPixel(xpos + 5, ypos + 5) == Color.FromArgb(255, 255, 255)) {
+                if (Squares[row, col] == 7 && image.GetPixel(xpos + 6, ypos + 6) == Color.FromArgb(255, 255, 255)) {
                     // Bomb has white shimmer on it at 5,5 to 7,7
                     Squares[row, col] = 100;
                 }
@@ -135,7 +135,10 @@ namespace MinesweeperSolver {
         /// </summary>
         /// <returns>Bitmap of the visualization</returns>
         public Bitmap GetVisualization() {
-            var result = new Bitmap(Columns*8, Rows*8);
+            // Easy changing of size for things like image size reduction etc
+            const int size = 32;
+            var fontMulti = (int) (size/8d);
+            var result = new Bitmap(Columns* size, Rows* size);
             using (var g = Graphics.FromImage(result)) {
                 for (var y = 0; y < Rows; y++) {
                     for (var x = 0; x < Columns; x++) {
@@ -146,23 +149,23 @@ namespace MinesweeperSolver {
                             col = Color.Magenta;
                         else if (val > -1 && val < 9)
                             col = NumberColors[0];
-                        else if (pos > 100)
+                        else if (val == 100) 
+                            col = Color.Violet;
+                        else if (pos >= 100)
                             col = Color.DarkBlue;
                         else if (pos > 50) {
                             var n = (int) (255*((pos - 50)/50d));
-                            col = Color.FromArgb(255, Math.Abs(n - 50), 0);
+                            col = Color.FromArgb(255, Math.Abs(n - 255), 0);
                         } else if (pos >= 0) {
                             var n = (int) (255*(pos/50d));
                             col = Color.FromArgb(n, 255, 0);
-                        } else if (pos == 101) {
-                            col = Color.Violet;
                         }
-                        g.FillRectangle(new SolidBrush(col), x*8, y*8, 8, 8);
+                        g.FillRectangle(new SolidBrush(col), x* size, y* size, size, size);
                         if (val > 0 && val < 9) {
                             var textCol = NumberColors[val];
-                            g.DrawString(val.ToString(), new Font(FontFamily.GenericMonospace, 6, FontStyle.Bold), new SolidBrush(textCol), 1 + x * 8, -1 + y * 8);
+                            g.DrawString(val.ToString(), new Font(FontFamily.GenericMonospace, 5 * fontMulti, FontStyle.Bold), new SolidBrush(textCol), fontMulti + x * size, (fontMulti/2) + y * size);
                         }
-                        g.DrawRectangle(new Pen(Color.Gray), x * 8, y * 8, 8, 8);
+                        g.DrawRectangle(new Pen(Color.Gray), x * size, y * size, size, size);
                     }
                 }
             }
