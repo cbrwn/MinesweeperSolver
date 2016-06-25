@@ -46,7 +46,6 @@ namespace MinesweeperSolver {
             }
 
             tmr.Stop();
-            //Console.WriteLine($"Found minesweeper in {(int) tmr.Elapsed.TotalMilliseconds}ms");
             return check ? topLeft != Point.Empty : MinesweeperWindow != Rectangle.Empty;
         }
 
@@ -71,8 +70,6 @@ namespace MinesweeperSolver {
             // Leftmost + window pos + offset + col or row + half width
             var posx = SystemInformation.VirtualScreen.Left + MinesweeperWindow.X + 8 + 16*x + 8;
             var posy = SystemInformation.VirtualScreen.Top + MinesweeperWindow.Y + 50 + 16*y + 8;
-
-            //Console.WriteLine((flag ? "Right " : "Left ") + $"Clicking ({x}, {y}) => ({posx}, {posy})");
 
             if (flag) {
                 InputHelper.RightClick(posx, posy);
