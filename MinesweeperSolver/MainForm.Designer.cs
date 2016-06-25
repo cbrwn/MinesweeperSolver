@@ -105,7 +105,7 @@ namespace MinesweeperSolver {
             this.pnlGameImage.Size = new System.Drawing.Size(377, 263);
             this.pnlGameImage.TabIndex = 5;
             this.pnlGameImage.TabStop = false;
-            this.pnlGameImage.Text = "Game";
+            this.pnlGameImage.Text = "Bot Brain";
             // 
             // MainForm
             // 

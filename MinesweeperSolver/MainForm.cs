@@ -55,7 +55,7 @@ namespace MinesweeperSolver {
             var tmr = new Stopwatch();
             tmr.Start();
 
-            var failedLast = false; // whether or not the bot failed last time - to stop multiple screenshots without limiting performance
+            var willDoubleScreenshot = false; // whether or not the bot screenshotted - to stop multiple screenshots without limiting performance
 
             Invoke((MethodInvoker) delegate {
                 strWaiting.Style = ProgressBarStyle.Continuous;
@@ -64,16 +64,16 @@ namespace MinesweeperSolver {
             });
 
             // Stop this loop on button click (Running), form exit or completion
-            while (MineSolver.Running && !IsDisposed && !board.IsComplete) {
+            while (MineSolver.Running && !IsDisposed) {
                 // Grab new screenshot
                 var img = ScreenHelper.GetMinesweeperScreenshot();
-                board.Update(img, failedLast);
+                board.Update(img, willDoubleScreenshot);
 
                 // Fail
                 if (board.IsFailed) {
-                    if (failedLast)
+                    if (willDoubleScreenshot)
                         continue;
-                    failedLast = true;
+                    willDoubleScreenshot = true;
                     Console.WriteLine(@"Failed!");
                     MineSolver.ClickSweeperRestart();
                     var boardSizeDirectory = Path.Combine(_screenshotLocation, $"{board.Columns}x{board.Rows}");
@@ -84,7 +84,22 @@ namespace MinesweeperSolver {
                     img.Save(filename);
                     continue;
                 }
-                failedLast = false;
+
+                // Finished
+                if (board.IsComplete) {
+                    if (willDoubleScreenshot)
+                        continue;
+                    willDoubleScreenshot = true;
+                    Console.WriteLine(@"Won!");
+                    var successDirectory = Path.Combine(_screenshotLocation, $"Wins");
+                    if (!Directory.Exists(successDirectory))
+                        Directory.CreateDirectory(successDirectory);
+                    var filename = Path.Combine(successDirectory, $"win-{(int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}.png");
+                    Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}");
+                    img.Save(filename);
+                    break;
+                }
+                willDoubleScreenshot = false;
 
                 // New board
                 if (board.IsNew) {
