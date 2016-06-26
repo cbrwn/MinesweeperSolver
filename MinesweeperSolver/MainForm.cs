@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -71,6 +73,9 @@ namespace MinesweeperSolver {
                 strStatus.Text = @"Solving...";
             });
 
+            var wins = 0;
+            var losses = 0;
+            var clears = new List<int>();
             var tries = 0;
             // Stop this loop on button click (Running) or form exit
             while (MineSolver.Running && !IsDisposed) {
@@ -100,6 +105,9 @@ namespace MinesweeperSolver {
                             Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}game.png");
                         }
                     }
+                    losses++;
+                    clears.Add(board.Score);
+                    UpdateAverages(clears, wins, losses);
                     if (tckTries.Value > 0 && tries > tckTries.Value)
                         break;
                     tries++;
@@ -127,8 +135,14 @@ namespace MinesweeperSolver {
                             Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}game.png");
                         }
                     }
+                    wins++;
+                    clears.Add(board.Score);
+                    UpdateAverages(clears, wins, losses);
                     if (chkStopWin.Checked)
                         break;
+                    if (tckTries.Value > 0 && tries > tckTries.Value)
+                        break;
+                    tries++;
                     MineSolver.ClickSweeperRestart();
                     continue;
                 }
@@ -163,6 +177,13 @@ namespace MinesweeperSolver {
                     strStatus.Text = @"Finished " + (board.IsComplete ? " successfully!" : " with a loss :(");
                 });
             }
+        }
+
+        private void UpdateAverages(IEnumerable<int> clears, int wins, int losses) {
+            Invoke((MethodInvoker)delegate {
+                strAvgClear.Text = $"{(int)clears.Cast<int>().Average()}% Avg. Clear";
+                strWinRate.Text = $"{(int)(100d*((double)wins / (wins + losses)))}% Win Rate";
+            });
         }
     }
 

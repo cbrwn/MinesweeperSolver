@@ -41,6 +41,8 @@ namespace MinesweeperSolver {
             this.chkSaveLoss = new System.Windows.Forms.CheckBox();
             this.chkSaveGame = new System.Windows.Forms.CheckBox();
             this.chkSaveBrain = new System.Windows.Forms.CheckBox();
+            this.strWinRate = new System.Windows.Forms.ToolStripStatusLabel();
+            this.strAvgClear = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.imgGame)).BeginInit();
             this.pnlGameImage.SuspendLayout();
@@ -52,7 +54,9 @@ namespace MinesweeperSolver {
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.strStatusTitle,
             this.strStatus,
-            this.strWaiting});
+            this.strWaiting,
+            this.strWinRate,
+            this.strAvgClear});
             this.statusStrip1.Location = new System.Drawing.Point(0, 313);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(397, 22);
@@ -196,6 +200,18 @@ namespace MinesweeperSolver {
             this.chkSaveBrain.Text = "Brain";
             this.chkSaveBrain.UseVisualStyleBackColor = true;
             // 
+            // strWinRate
+            // 
+            this.strWinRate.Name = "strWinRate";
+            this.strWinRate.Size = new System.Drawing.Size(85, 17);
+            this.strWinRate.Text = "100% Win Rate";
+            // 
+            // strAvgClear
+            // 
+            this.strAvgClear.Name = "strAvgClear";
+            this.strAvgClear.Size = new System.Drawing.Size(92, 17);
+            this.strAvgClear.Text = "100% Avg. Clear";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -243,6 +259,8 @@ namespace MinesweeperSolver {
         private CheckBox chkSaveLoss;
         private CheckBox chkSaveGame;
         private CheckBox chkSaveBrain;
+        private ToolStripStatusLabel strWinRate;
+        private ToolStripStatusLabel strAvgClear;
     }
 }
 
