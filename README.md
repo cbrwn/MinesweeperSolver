@@ -9,6 +9,6 @@ It takes control of the mouse, and doesn't stop until it's complete or the windo
 
 Right now it goes through guaranteed bomb places, flags them and clears satisfied bomb counts.
 
-When it runs out of guaranteed moves, it randomly chooses a square and clicks it. It's super bad, and I'll be making it better with actual guessing strategy.
+When it runs out of guaranteed moves, it uses a super simple probability check to find the safest square to open. I'm sure there's a better strategy than this, as right now it can only beat Expert ~1% of the time.
 
-When it fails, it takes a screenshot so you can see how far it got.
+It also lets you take a screenshot of the game and/or its interpretation of the board upon failing/winning.
