@@ -9,6 +9,7 @@ namespace MinesweeperSolver {
         public readonly int Columns;
         public readonly int Rows;
         public readonly int[,] Squares;
+        public int[,] BombProbabilities;
 
         /// <summary>
         ///     New instance of a board, with all squares being unclicked
@@ -17,6 +18,7 @@ namespace MinesweeperSolver {
             Columns = columns;
             Rows = rows;
             Squares = new int[Rows, Columns];
+            BombProbabilities = new int[Rows, Columns];
             // Start with a fresh board, all unclicked
             for (var y = 0; y < Rows; y++) {
                 for (var x = 0; x < Columns; x++)
@@ -38,6 +40,7 @@ namespace MinesweeperSolver {
                     Squares[y, x] = -2; // -2 so we can tell when processing didn't work
             }
             Update(boardImage, true);
+            UpdateBombProbabilities();
         }
 
         public bool IsComplete => Squares.Cast<int>().All(i => i != -1);
@@ -68,8 +71,7 @@ namespace MinesweeperSolver {
         /// <param name="image">Bitmap of the whole Minesweeper window</param>
         /// <param name="col">The column (or x value) of the square to update</param>
         /// <param name="row">The row (or y value) of the square to update</param>
-        /// <returns>The value of the updated square</returns>
-        private int UpdateSquare(Bitmap image, int col, int row) {
+        private void UpdateSquare(Bitmap image, int col, int row) {
             // Top/left margins
             const int xoff = 8;
             const int yoff = 50;
@@ -105,7 +107,42 @@ namespace MinesweeperSolver {
                     Squares[row, col] = 100;
                 }
             }
-            return Squares[row, col];
+        }
+
+        /// <summary>
+        ///     Updates the list of bomb probabilities
+        /// </summary>
+        public void UpdateBombProbabilities() {
+            BombProbabilities = new int[Rows, Columns];
+            for (var y = 0; y < Rows; y++) {
+                for (var x = 0; x < Columns; x++)
+                    BombProbabilities[y, x] = -1;
+            }
+            var probCount = new int[Rows, Columns];
+            // Update probabilities
+            for (var y = 0; y < Rows; y++) {
+                for (var x = 0; x < Columns; x++) {
+                    var val = GetSquare(x, y);
+                    if (!(val >= 0 && val < 9)) { // Only want to process clicked squares, we'll process the squares around them using their value
+                        continue;
+                    }
+                    var sur = SweeperHelper.GetSurroundingClicks(this, x, y);
+                    if (sur.Count == 0) // If there's no more unopened squares around it, there's no potential bombs to search for
+                        continue;
+                    var bombCount = SweeperHelper.GetSurroundingBombs(this, x, y).Count;
+                    var thisprob = 100d*((val - bombCount)/(double) sur.Count);
+                    foreach (var p in sur) {
+                        BombProbabilities[p.Y, p.X] = (int) Math.Max(thisprob, BombProbabilities[p.Y, p.X]);
+                    }
+                }
+            }
+
+            for (var y = 0; y < Rows; y++) {
+                for (var x = 0; x < Columns; x++) {
+                    if (BombProbabilities[y, x] == -1)
+                        BombProbabilities[y, x] = 101;
+                }
+            }
         }
 
         /// <summary>
@@ -138,19 +175,18 @@ namespace MinesweeperSolver {
             // Easy changing of size for things like image size reduction etc
             const int size = 32;
             var fontMulti = (int) (size/8d);
-            var result = new Bitmap(Columns* size, Rows* size);
+            var result = new Bitmap(Columns*size, Rows*size);
+            UpdateBombProbabilities();
             using (var g = Graphics.FromImage(result)) {
                 for (var y = 0; y < Rows; y++) {
                     for (var x = 0; x < Columns; x++) {
                         var col = NumberColors[0];
-                        var pos = SweeperHelper.GetBombProbability(this, x, y);
+                        var pos = BombProbabilities[y, x];
                         var val = GetSquare(x, y);
                         if (val == 9)
                             col = Color.Magenta;
                         else if (val > -1 && val < 9)
                             col = NumberColors[0];
-                        else if (val == 100) 
-                            col = Color.Violet;
                         else if (pos > 100)
                             col = Color.DarkBlue;
                         else if (pos > 50) {
@@ -160,12 +196,12 @@ namespace MinesweeperSolver {
                             var n = (int) (255*(pos/50d));
                             col = Color.FromArgb(n, 255, 0);
                         }
-                        g.FillRectangle(new SolidBrush(col), x* size, y* size, size, size);
+                        g.FillRectangle(new SolidBrush(col), x*size, y*size, size, size);
                         if (val > 0 && val < 9) {
                             var textCol = NumberColors[val];
-                            g.DrawString(val.ToString(), new Font(FontFamily.GenericMonospace, 5 * fontMulti, FontStyle.Bold), new SolidBrush(textCol), fontMulti + x * size, (fontMulti/2) + y * size);
+                            g.DrawString(val.ToString(), new Font(FontFamily.GenericMonospace, 5*fontMulti, FontStyle.Bold), new SolidBrush(textCol), fontMulti + x*size, fontMulti/2 + y*size);
                         }
-                        g.DrawRectangle(new Pen(Color.Gray), x * size, y * size, size, size);
+                        g.DrawRectangle(new Pen(Color.Gray), x*size, y*size, size, size);
                     }
                 }
             }

@@ -60,48 +60,6 @@ namespace MinesweeperSolver {
             }
             return result;
         }
-
-        /// <summary>
-        ///     Gets the probability of a square being a bomb
-        /// </summary>
-        /// <param name="board">Board to test</param>
-        /// <param name="x">Column of square to test</param>
-        /// <param name="y">Row of square to test</param>
-        /// <returns>Probability of the square being a bomb, from 0 to 100</returns>
-        public static double GetBombProbability(Board board, int x, int y) {
-            // 100% sure it's a bomb if it's... a bomb
-            if (board.GetSquare(x, y) == 9 || board.GetSquare(x, y) == 100)
-                return 100;
-            // It can't be a bomb if it has already been clicked and wasn't a bomb
-            if (board.GetSquare(x, y) >= 0)
-                return 0;
-
-            var surrounding = GetSurroundingNumbers(board, x, y);
-            if (surrounding.Count == 0) // No surrounding numbers - safest to assume it's 101% a bomb
-                return 101;
-            // We'll list the probabilities from each surrounding square (e.g. if a square is "3" and has 1 bomb next to it, the probability will be 50% or 50)
-            var probabilities = new List<double>();
-            foreach (var p in surrounding) {
-                var val = board.GetSquare(p);
-                switch (val) {
-                    case 0: // If a surrounding square has no nearby bombs, this one can't be a bomb
-                        return 0;
-                    case 1: // If there's 1 bomb nearby a surrounding square and this one hasn't been clicked, it must be a bomb
-                        return 100;
-                }
-                var clicks = GetSurroundingClicks(board, p.X, p.Y);
-                if (clicks.Count == 0) // If a surrounding square can't be clicked on, this one must either be clicked or a bomb (should never happen, just stopping div by zero in case it does)
-                    return 0;
-                var bombs = GetSurroundingBombs(board, p.X, p.Y);
-
-                val -= bombs.Count; // How many bombs we still need to find
-
-                // Remaining bombs / total clickable
-                probabilities.Add(100*((double) val/clicks.Count));
-            }
-            // Grab the average probability
-            return probabilities.Sum()/probabilities.Count;
-        }
     }
 
 }
