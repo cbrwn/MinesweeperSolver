@@ -151,7 +151,7 @@ namespace MinesweeperSolver {
                             col = NumberColors[0];
                         else if (val == 100) 
                             col = Color.Violet;
-                        else if (pos >= 100)
+                        else if (pos > 100)
                             col = Color.DarkBlue;
                         else if (pos > 50) {
                             var n = (int) (255*((pos - 50)/50d));
