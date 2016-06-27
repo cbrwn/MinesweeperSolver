@@ -85,47 +85,19 @@ namespace MinesweeperSolver {
                 // Update the image as soon as updated
                 imgGame.Image = board.GetVisualization();
 
-                // Fail
-                if (board.IsFailed) {
+                // 60 lines
+                if (board.IsFailed || board.IsComplete) {
                     if (willDoubleScreenshot)
                         continue;
                     willDoubleScreenshot = true;
-                    Console.WriteLine(@"Failed!");
-                    if (chkSaveLoss.Checked) {
-                        var boardSizeDirectory = Path.Combine(_screenshotLocation, $"{board.Columns}x{board.Rows}");
-                        if (!Directory.Exists(boardSizeDirectory))
-                            Directory.CreateDirectory(boardSizeDirectory);
-                        var filename = Path.Combine(boardSizeDirectory, $"{board.Score}%-fail-{(int) DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}-");
-                        if (chkSaveBrain.Checked) {
-                            board.GetVisualization().Save(filename + "brain.png");
-                            Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}brain.png");
-                        }
-                        if (chkSaveGame.Checked) {
-                            img.Save(filename + "game.png");
-                            Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}game.png");
-                        }
-                    }
-                    losses++;
-                    clears.Add(board.Score);
-                    UpdateAverages(clears, wins, losses);
-                    if (tckTries.Value > 0 && tries > tckTries.Value)
-                        break;
-                    tries++;
-                    MineSolver.ClickSweeperRestart();
-                    continue;
-                }
 
-                // Finished
-                if (board.IsComplete) {
-                    if (willDoubleScreenshot)
-                        continue;
-                    willDoubleScreenshot = true;
-                    Console.WriteLine(@"Won!");
-                    if (chkSaveWin.Checked) {
-                        var successDirectory = Path.Combine(_screenshotLocation, $"Wins");
-                        if (!Directory.Exists(successDirectory))
-                            Directory.CreateDirectory(successDirectory);
-                        var filename = Path.Combine(successDirectory, $"{board.Columns}x{board.Rows}-win-{(int) DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}-");
+                    // Screenshot stuff
+                    var saveThis = (chkSaveWin.Checked && board.IsComplete) || (chkSaveLoss.Checked && board.IsFailed);
+                    if (saveThis) {
+                        var directory = Path.Combine(_screenshotLocation, board.IsComplete ? @"Wins" : $"{board.Columns}x{board.Rows}");
+                        if (!Directory.Exists(directory))
+                            Directory.CreateDirectory(directory);
+                        var filename = Path.Combine(directory, (board.IsComplete ? @"win" : $"{board.Score}%") + $"-{(int) DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}-");
                         if (chkSaveBrain.Checked) {
                             board.GetVisualization().Save(filename + "brain.png");
                             Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}brain.png");
@@ -135,14 +107,18 @@ namespace MinesweeperSolver {
                             Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}game.png");
                         }
                     }
-                    wins++;
+
+                    tries++;
+                    if (board.IsFailed)
+                        losses++;
+                    else
+                        wins++;
                     clears.Add(board.Score);
                     UpdateAverages(clears, wins, losses);
-                    if (chkStopWin.Checked)
-                        break;
                     if (tckTries.Value > 0 && tries > tckTries.Value)
                         break;
-                    tries++;
+                    if (chkStopWin.Checked && board.IsComplete)
+                        break;
                     MineSolver.ClickSweeperRestart();
                     continue;
                 }
@@ -180,9 +156,9 @@ namespace MinesweeperSolver {
         }
 
         private void UpdateAverages(IEnumerable<int> clears, int wins, int losses) {
-            Invoke((MethodInvoker)delegate {
-                strAvgClear.Text = $"{(int)clears.Cast<int>().Average()}% Avg. Clear";
-                strWinRate.Text = $"{(int)(100d*((double)wins / (wins + losses)))}% Win Rate";
+            Invoke((MethodInvoker) delegate {
+                strAvgClear.Text = $"{(int) clears.Cast<int>().Average()}% Avg. Clear";
+                strWinRate.Text = $"{(int) (100d*((double) wins/(wins + losses)))}% Win Rate";
             });
         }
     }
