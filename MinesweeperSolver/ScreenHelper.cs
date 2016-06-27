@@ -20,20 +20,6 @@ namespace MinesweeperSolver {
         }
 
         /// <summary>
-        ///     Grabs a screenshot of the Minesweeper window, returns null if the window hasn't been found
-        /// </summary>
-        /// <returns></returns>
-        public static Bitmap GetMinesweeperScreenshot() {
-            if (MineSolver.MinesweeperWindow == Rectangle.Empty)
-                return null;
-            var result = new Bitmap(MineSolver.MinesweeperWindow.Width, MineSolver.MinesweeperWindow.Height);
-            using (var g = Graphics.FromImage(result))
-            // VirtualScreen + Window because VirtualScreens go negative and the position in the image is obviously positive
-                g.CopyFromScreen(SystemInformation.VirtualScreen.Left + MineSolver.MinesweeperWindow.X, SystemInformation.VirtualScreen.Top + MineSolver.MinesweeperWindow.Y, 0, 0, MineSolver.MinesweeperWindow.Size);
-            return result;
-        }
-
-        /// <summary>
         ///     Gets the position of a bitmap inside another bitmap
         ///     Mostly from StackOverflow, with some changes for things like start position and a non-list result
         ///     http://stackoverflow.com/questions/28586793/c-sharp-search-for-a-bitmap-within-another-bitmap

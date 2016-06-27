@@ -1,24 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 
 namespace MinesweeperSolver {
 
     public class Board {
-        private static readonly Color[] NumberColors = { Color.FromArgb(189, 189, 189), Color.FromArgb(0, 0, 255), Color.FromArgb(0, 123, 0), Color.FromArgb(255, 0, 0), Color.FromArgb(0, 0, 123), Color.FromArgb(123, 0, 0), Color.FromArgb(0, 123, 123), Color.FromArgb(0, 0, 0), Color.FromArgb(123, 123, 123) };
+        public static readonly Color[] NumberColors = { Color.FromArgb(189, 189, 189), Color.FromArgb(0, 0, 255), Color.FromArgb(0, 123, 0), Color.FromArgb(255, 0, 0), Color.FromArgb(0, 0, 123), Color.FromArgb(123, 0, 0), Color.FromArgb(0, 123, 123), Color.FromArgb(0, 0, 0), Color.FromArgb(123, 123, 123) };
         public readonly int Columns;
         public readonly int Rows;
         public readonly int[,] Squares;
-        public int[,] BombProbabilities;
 
         /// <summary>
         ///     New instance of a board, with all squares being unclicked
         /// </summary>
-        private Board(int columns = 30, int rows = 16) {
+        public Board(int columns = 30, int rows = 16) {
             Columns = columns;
             Rows = rows;
             Squares = new int[Rows, Columns];
-            BombProbabilities = new int[Rows, Columns];
             // Start with a fresh board, all unclicked
             for (var y = 0; y < Rows; y++) {
                 for (var x = 0; x < Columns; x++)
@@ -40,7 +40,6 @@ namespace MinesweeperSolver {
                     Squares[y, x] = -2; // -2 so we can tell when processing didn't work
             }
             Update(boardImage, true);
-            UpdateBombProbabilities();
         }
 
         public bool IsComplete => Squares.Cast<int>().All(i => i != -1);
@@ -110,42 +109,6 @@ namespace MinesweeperSolver {
         }
 
         /// <summary>
-        ///     Updates the list of bomb probabilities
-        /// </summary>
-        public void UpdateBombProbabilities() {
-            BombProbabilities = new int[Rows, Columns];
-            for (var y = 0; y < Rows; y++) {
-                for (var x = 0; x < Columns; x++)
-                    BombProbabilities[y, x] = -1;
-            }
-            var probCount = new int[Rows, Columns];
-            // Update probabilities
-            for (var y = 0; y < Rows; y++) {
-                for (var x = 0; x < Columns; x++) {
-                    var val = GetSquare(x, y);
-                    if (!(val >= 0 && val < 9)) { // Only want to process clicked squares, we'll process the squares around them using their value
-                        continue;
-                    }
-                    var sur = SweeperHelper.GetSurroundingClicks(this, x, y);
-                    if (sur.Count == 0) // If there's no more unopened squares around it, there's no potential bombs to search for
-                        continue;
-                    var bombCount = SweeperHelper.GetSurroundingBombs(this, x, y).Count;
-                    var thisprob = 100d*((val - bombCount)/(double) sur.Count);
-                    foreach (var p in sur) {
-                        BombProbabilities[p.Y, p.X] = (int) Math.Max(thisprob, BombProbabilities[p.Y, p.X]);
-                    }
-                }
-            }
-
-            for (var y = 0; y < Rows; y++) {
-                for (var x = 0; x < Columns; x++) {
-                    if (BombProbabilities[y, x] == -1)
-                        BombProbabilities[y, x] = 101;
-                }
-            }
-        }
-
-        /// <summary>
         ///     Gets the value of a square at a specific point
         /// </summary>
         /// <param name="x">Column of square</param>
@@ -165,44 +128,51 @@ namespace MinesweeperSolver {
         }
 
         /// <summary>
-        ///     Grabs a visualization of squares and their preceived probability of being a bomb
-        ///     Closer to green = safer to click
-        ///     Closer to red = more dangerous
-        ///     Pink = is bomb
+        ///     Grabs a list of surrounding flagged squares
         /// </summary>
-        /// <returns>Bitmap of the visualization</returns>
-        public Bitmap GetVisualization() {
-            // Easy changing of size for things like image size reduction etc
-            const int size = 32;
-            var fontMulti = (int) (size/8d);
-            var result = new Bitmap(Columns*size, Rows*size);
-            UpdateBombProbabilities();
-            using (var g = Graphics.FromImage(result)) {
-                for (var y = 0; y < Rows; y++) {
-                    for (var x = 0; x < Columns; x++) {
-                        var col = NumberColors[0];
-                        var pos = BombProbabilities[y, x];
-                        var val = GetSquare(x, y);
-                        if (val == 9)
-                            col = Color.Magenta;
-                        else if (val > -1 && val < 9)
-                            col = NumberColors[0];
-                        else if (pos > 100)
-                            col = Color.DarkBlue;
-                        else if (pos > 50) {
-                            var n = (int) (255*((pos - 50)/50d));
-                            col = Color.FromArgb(255, Math.Abs(n - 255), 0);
-                        } else if (pos >= 0) {
-                            var n = (int) (255*(pos/50d));
-                            col = Color.FromArgb(n, 255, 0);
-                        }
-                        g.FillRectangle(new SolidBrush(col), x*size, y*size, size, size);
-                        if (val > 0 && val < 9) {
-                            var textCol = NumberColors[val];
-                            g.DrawString(val.ToString(), new Font(FontFamily.GenericMonospace, 5*fontMulti, FontStyle.Bold), new SolidBrush(textCol), fontMulti + x*size, fontMulti/2 + y*size);
-                        }
-                        g.DrawRectangle(new Pen(Color.Gray), x*size, y*size, size, size);
-                    }
+        /// <param name="x">Column of the square to search around</param>
+        /// <param name="y">Row of the square to search around</param>
+        /// <returns>List of surrounding flag squares</returns>
+        public List<Point> GetSurroundingBombs(int x, int y) {
+            return GetSurrounding(x, y, 9);
+        }
+
+        /// <summary>
+        ///     Grabs a list of surrounding unclicked squares
+        /// </summary>
+        /// <param name="x">Column of the square to search around</param>
+        /// <param name="y">Row of the square to search around</param>
+        /// <returns>List of surrounding squares which are unclicked</returns>
+        public List<Point> GetSurroundingClicks(int x, int y) {
+            return GetSurrounding(x, y, -1);
+        }
+
+        /// <summary>
+        ///     Grabs a list of surrounding clicked squares
+        /// </summary>
+        /// <param name="x">Column of the square to search around</param>
+        /// <param name="y">Row of the square to search around</param>
+        /// <returns>List of surrounding squares which have been clicked</returns>
+        public List<Point> GetSurroundingNumbers(int x, int y) {
+            var result = new List<Point>();
+            for (var i = 0; i < 9; i++)
+                result.AddRange(GetSurrounding(x, y, i));
+            return result;
+        }
+
+        /// <summary>
+        ///     Grabs a list of squares with value 'type' which surround the square at (x,y)
+        /// </summary>
+        /// <param name="x">Column of the square to search around</param>
+        /// <param name="y">Row of the square to search around</param>
+        /// <param name="type">Value of squares to return</param>
+        /// <returns>List of squares of type 'type' which surround the square</returns>
+        private List<Point> GetSurrounding(int x, int y, int type = -2) {
+            var result = new List<Point>();
+            for (var i = Math.Max(0, y - 1); i <= Math.Min(Rows - 1, y + 1); i++) {
+                for (var j = Math.Max(0, x - 1); j <= Math.Min(Columns - 1, x + 1); j++) {
+                    if (Squares[i, j] == type || type == -2)
+                        result.Add(new Point(j, i));
                 }
             }
             return result;

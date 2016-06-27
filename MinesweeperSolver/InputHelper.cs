@@ -17,6 +17,8 @@ namespace MinesweeperSolver {
             RightUp = 0x00000010
         }
 
+        private const int slp = 0;
+
         [DllImport("user32.dll", EntryPoint = "SetCursorPos")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetCursorPos(int X, int Y);
@@ -56,7 +58,6 @@ namespace MinesweeperSolver {
             ;
         }
 
-        const int slp = 0;
         public static void LeftClick(int x, int y) {
             SetCursorPosition(x, y);
             Thread.Sleep(slp);
