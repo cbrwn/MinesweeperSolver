@@ -29,9 +29,10 @@ namespace MinesweeperSolver {
 
         private void StartSolve(object sender, EventArgs e) {
             MineSolver.Running = !MineSolver.Running;
-            if (!MineSolver.Running)
+            if (!MineSolver.Running) {
                 btnSolve.Enabled = false; // Let the thread re-enable this when it's stopped
-            else {
+                strStatus.Text = @"Stopping...";
+            } else {
                 _solver = new ProbabilitySolver();
                 new Thread(SolveSweeper).Start();
             }
@@ -124,7 +125,8 @@ namespace MinesweeperSolver {
 
                 // New board
                 if (_solver.Board.IsNew) {
-                    Console.WriteLine(@"============================\nNew game!");
+                    Console.WriteLine(@"============================");
+                    Console.WriteLine(@"New game!");
                     _solver.ClickSweeperSquare(0, 0);
                     continue;
                 }
@@ -148,7 +150,7 @@ namespace MinesweeperSolver {
                     btnSolve.Enabled = true;
                     strWaiting.Visible = false;
                     btnSolve.Text = @"Solve";
-                    strStatus.Text = @"Finished " + (_solver.Board.IsComplete ? " successfully!" : " with a loss :(");
+                    strStatus.Text = @"Finished!";
                 });
             }
         }
@@ -156,7 +158,7 @@ namespace MinesweeperSolver {
         private void UpdateAverages(IEnumerable<int> clears, int wins, int losses) {
             Invoke((MethodInvoker) delegate {
                 strAvgClear.Text = $"{(int) clears.Average()}% Avg. Clear";
-                strWinRate.Text = $"{100d*((double) wins/(wins + losses))}% Win Rate";
+                strWinRate.Text = $"{Math.Round(100d*((double) wins/(wins + losses)), 2)}% Win Rate";
             });
         }
     }
