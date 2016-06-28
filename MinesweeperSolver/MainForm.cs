@@ -126,7 +126,6 @@ namespace MinesweeperSolver {
                 if (_solver.Board.IsNew) {
                     Console.WriteLine($"============================\nNew game!");
                     _solver.ClickSweeperSquare(0, 0);
-                    _solver.ClickSweeperSquare(0, 0);
                     continue;
                 }
 

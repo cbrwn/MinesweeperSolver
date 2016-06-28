@@ -56,7 +56,7 @@ namespace MinesweeperSolver {
         public void Update(Bitmap newImage, bool full = false) {
             for (var y = 0; y < Rows; y++) {
                 for (var x = 0; x < Columns; x++) {
-                    if (Squares[y, x] >= 0 && !full) // Values under 0 are unclicked - we only check them if we're doing a full update (in the main loop)
+                    if (Squares[y, x] >= 0 && Squares[y,x] != 9 && !full) // Values under 0 are unclicked - we only check them if we're doing a full update (in the main loop)
                         continue;
                     UpdateSquare(newImage, x, y);
                 }
