@@ -37,41 +37,9 @@ namespace MinesweeperSolver.solvers {
             }
         }
 
-        public override void DoMove() {
-            // TODO: Consider making this base.DoMove and just using DoMove for non-obvious moves
-            // Squares which require no guessing
-            var clicked = false;
-            var tmr = new Stopwatch();
-            tmr.Start();
-            for (var y = 0; y < Board.Rows; y++) {
-                for (var x = 0; x < Board.Columns; x++) {
-                    if (Board.GetSquare(x, y) == 0)
-                        continue;
-                    var clicks = Board.GetSurroundingClicks(x, y);
-                    var bombs = Board.GetSurroundingBombs(x, y);
-                    if (clicks.Count == 0)
-                        continue;
-                    // Click a square around a clicked where the clicked's bombs have all been found
-                    if (Board.GetSquare(x, y) - bombs.Count == 0) {
-                        ClickSquareList(clicks);
-                        clicked = true;
-                    }
-
-                    // Flag a guaranteed bomb
-                    if (Board.GetSquare(x, y) != clicks.Count + bombs.Count)
-                        continue;
-                    ClickSquareList(clicks, true);
-                    clicked = true;
-                }
-                if (!(tmr.Elapsed.TotalMilliseconds >= 500))
-                    continue;
-                tmr.Restart();
-                if (!FindSweeperWindow(true))
-                    return;
-            }
-            if (clicked) // Leave this method and re-process the board, no need to start guessing yet
-                return;
-
+        public override bool DoMove() {
+            if (base.DoMove())
+                return true;
             // Now we need to guess
             UpdateProbabilities();
             var lowestProb = 1000d;
@@ -92,6 +60,7 @@ namespace MinesweeperSolver.solvers {
             // Guess that it's a bomb if the bomb probability is over 50%
             // Except if the bomb probability is 100% - then something must have gone wrong so we can click it and fail
             ClickSweeperSquare(lx, ly, lowestProb > 50 && lowestProb >= 100);
+            return true;
         }
 
         public override Bitmap GetBrainImage() {

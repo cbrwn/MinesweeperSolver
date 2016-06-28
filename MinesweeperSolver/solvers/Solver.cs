@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
@@ -113,9 +114,40 @@ namespace MinesweeperSolver.solvers {
 
         /// <summary>
         ///     Does a move (or set of moves) in the game
+        ///     Does all obvious moves by default, allowing Solver classes to focus on the guessing strategy
         /// </summary>
-        public virtual void DoMove() {
-            throw new NotImplementedException("DoMove not implemented!");
+        public virtual bool DoMove() {
+            // Squares which require no guessing
+            var clicked = false;
+            var tmr = new Stopwatch();
+            tmr.Start();
+            for (var y = 0; y < Board.Rows; y++) {
+                for (var x = 0; x < Board.Columns; x++) {
+                    if (Board.GetSquare(x, y) == 0)
+                        continue;
+                    var clicks = Board.GetSurroundingClicks(x, y);
+                    var bombs = Board.GetSurroundingBombs(x, y);
+                    if (clicks.Count == 0)
+                        continue;
+                    // Click a square around a clicked where the clicked's bombs have all been found
+                    if (Board.GetSquare(x, y) - bombs.Count == 0) {
+                        ClickSquareList(clicks);
+                        clicked = true;
+                    }
+
+                    // Flag a guaranteed bomb
+                    if (Board.GetSquare(x, y) != clicks.Count + bombs.Count)
+                        continue;
+                    ClickSquareList(clicks, true);
+                    clicked = true;
+                }
+                if (!(tmr.Elapsed.TotalMilliseconds >= 500))
+                    continue;
+                tmr.Restart();
+                if (!FindSweeperWindow(true))
+                    return false;
+            }
+            return clicked; // We want to continue in the Solver class only if there's no obvious moves left
         }
 
         /// <summary>
