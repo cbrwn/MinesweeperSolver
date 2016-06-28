@@ -43,23 +43,20 @@ namespace MinesweeperSolver.solvers {
             // Now we need to guess
             UpdateProbabilities();
             var lowestProb = 1000d;
-            int lx = 0, ly = 0;
-            for (var y = 0; y < Board.Rows; y++) {
-                for (var x = 0; x < Board.Columns; x++) {
-                    if (Board.GetSquare(x, y) != -1) // Only want to search through unclicked (-1)
-                        continue;
-                    var prob = _prob[y, x];
-                    if (prob >= lowestProb)
-                        continue;
-                    lowestProb = prob;
-                    lx = x;
-                    ly = y;
-                }
+            var lp = Point.Empty;
+            foreach (var p in Board.GetBorderSquares()) {
+                if (Board.GetSquare(p) != -1)
+                    continue;
+                var prob = _prob[p.Y, p.X];
+                if (prob >= lowestProb)
+                    continue;
+                lowestProb = prob;
+                lp = p;
             }
-            Console.WriteLine($"Guessed ({lx},{ly}) with probability of {lowestProb}%");
+            Console.WriteLine($"Guessed ({lp.X},{lp.Y}) with probability of {lowestProb}%");
             // Guess that it's a bomb if the bomb probability is over 50%
             // Except if the bomb probability is 100% - then something must have gone wrong so we can click it and fail
-            ClickSweeperSquare(lx, ly, lowestProb > 50 && lowestProb >= 100);
+            ClickSweeperSquare(lp, lowestProb > 50 && lowestProb >= 100);
             return true;
         }
 

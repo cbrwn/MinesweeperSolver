@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 
@@ -42,6 +41,12 @@ namespace MinesweeperSolver {
             Update(boardImage, true);
         }
 
+        public Board(int[,] squares) {
+            Squares = squares;
+            Rows = squares.GetLength(0);
+            Columns = squares.GetLength(1);
+        }
+
         public bool IsComplete => Squares.Cast<int>().All(i => i != -1);
         public bool IsNew => Squares.Cast<int>().All(i => i == -1);
         public bool IsFailed => (from int i in Squares where i == 100 select i).Any();
@@ -56,7 +61,7 @@ namespace MinesweeperSolver {
         public void Update(Bitmap newImage, bool full = false) {
             for (var y = 0; y < Rows; y++) {
                 for (var x = 0; x < Columns; x++) {
-                    if (Squares[y, x] >= 0 && Squares[y,x] != 9 && !full) // Values under 0 are unclicked - we only check them if we're doing a full update (in the main loop)
+                    if (Squares[y, x] >= 0 && Squares[y, x] != 9 && !full) // Values under 0 are unclicked - we only check them if we're doing a full update (in the main loop)
                         continue;
                     UpdateSquare(newImage, x, y);
                 }
@@ -119,6 +124,17 @@ namespace MinesweeperSolver {
         }
 
         /// <summary>
+        ///     Sets a specific square to a value
+        ///     Mostly used just to keep x,y ordering and reduce confusion with y,x of the array
+        /// </summary>
+        /// <param name="x">Column of square</param>
+        /// <param name="y">Row of square</param>
+        /// <param name="value">Value to be set to the square</param>
+        public void SetSquare(int x, int y, int value) {
+            Squares[y, x] = value;
+        }
+
+        /// <summary>
         ///     Gets the value of a square at a specific point
         /// </summary>
         /// <param name="pos">Point of square</param>
@@ -160,6 +176,58 @@ namespace MinesweeperSolver {
             return result;
         }
 
+        public List<Point> GetBorderSquares() {
+            var result = new List<Point>();
+            for (var y = 0; y < Rows; y++) {
+                for (var x = 0; x < Columns; x++) {
+                    if (GetSquare(x, y) != -1 && GetSquare(x, y) != 9) // Only want unclicked squares
+                        continue;
+                    if (GetSurroundingNumbers(x, y).Count > 0)
+                        result.Add(new Point(x, y));
+                }
+            }
+            return result;
+        }
+
+        public List<Point> GetSafeSquares() {
+            var result = new List<Point>();
+            for (var y = 0; y < Rows; y++) {
+                for (var x = 0; x < Columns; x++) {
+                    if (GetSquare(x, y) < 0 || GetSquare(x, y) > 8)
+                        continue;
+                    var clicks = GetSurroundingClicks(x, y);
+                    var bombs = GetSurroundingBombs(x, y);
+                    if (clicks.Count == 0)
+                        continue;
+                    // Click a square around a clicked where the clicked's bombs have all been found
+                    if (GetSquare(x, y) - bombs.Count != 0)
+                        continue;
+                    foreach (var p in clicks.Where(p => !result.Contains(p)))
+                        result.Add(p);
+                }
+            }
+            return result;
+        }
+
+        public List<Point> GetGuaranteedBombs() {
+            var result = new List<Point>();
+            for (var y = 0; y < Rows; y++) {
+                for (var x = 0; x < Columns; x++) {
+                    if (GetSquare(x, y) < 0 || GetSquare(x, y) > 8)
+                        continue;
+                    var clicks = GetSurroundingClicks(x, y);
+                    var bombs = GetSurroundingBombs(x, y);
+                    if (clicks.Count == 0)
+                        continue;
+                    if (GetSquare(x, y) != clicks.Count + bombs.Count)
+                        continue;
+                    foreach (var p in clicks.Where(p => !result.Contains(p)))
+                        result.Add(p);
+                }
+            }
+            return result;
+        }
+
         /// <summary>
         ///     Grabs a list of squares with value 'type' which surround the square at (x,y)
         /// </summary>
@@ -176,6 +244,23 @@ namespace MinesweeperSolver {
                 }
             }
             return result;
+        }
+
+        /// <summary>
+        ///     Checks if all uncovered squares have their bomb count satisfied
+        /// </summary>
+        /// <returns>Whether the board has the correct amount of bombs</returns>
+        private bool IsBombful() {
+            for (var y = 0; y < Rows; y++) {
+                for (var x = 0; x < Columns; x++) {
+                    var val = GetSquare(x, y);
+                    if (val < 0 || val > 8)
+                        continue;
+                    if (GetSurroundingBombs(x, y).Count != val)
+                        return false;
+                }
+            }
+            return true;
         }
     }
 

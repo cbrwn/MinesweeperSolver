@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
@@ -62,12 +61,12 @@ namespace MinesweeperSolver.solvers {
 
             if (flag) {
                 InputHelper.RightClick(posx, posy);
-                Board.Squares[y, x] = 9;
+                Board.SetSquare(x, y, 9);
             } else {
                 InputHelper.LeftClick(posx, posy);
-                Board.Squares[y, x] = -3;
+                Board.SetSquare(x, y, -3);
             }
-            Thread.Sleep(6);
+            Thread.Sleep(10);
         }
 
         /// <summary>
@@ -75,7 +74,7 @@ namespace MinesweeperSolver.solvers {
         /// </summary>
         /// <param name="p">Point of the square to click</param>
         /// <param name="flag">Whether or not to set a flag (right click)</param>
-        private void ClickSweeperSquare(Point p, bool flag = false) {
+        public void ClickSweeperSquare(Point p, bool flag = false) {
             ClickSweeperSquare(p.X, p.Y, flag);
         }
 
@@ -84,7 +83,7 @@ namespace MinesweeperSolver.solvers {
         /// </summary>
         /// <param name="squares">List of squares to click</param>
         /// <param name="flag">Whether or not to set a flag (right click)</param>
-        protected void ClickSquareList(IEnumerable<Point> squares, bool flag = false) {
+        private void ClickSquareList(IEnumerable<Point> squares, bool flag = false) {
             foreach (var p in squares)
                 ClickSweeperSquare(p, flag);
         }
@@ -117,37 +116,18 @@ namespace MinesweeperSolver.solvers {
         ///     Does all obvious moves by default, allowing Solver classes to focus on the guessing strategy
         /// </summary>
         public virtual bool DoMove() {
-            // Squares which require no guessing
-            var clicked = false;
-            var tmr = new Stopwatch();
-            tmr.Start();
-            for (var y = 0; y < Board.Rows; y++) {
-                for (var x = 0; x < Board.Columns; x++) {
-                    if (Board.GetSquare(x, y) == 0)
-                        continue;
-                    var clicks = Board.GetSurroundingClicks(x, y);
-                    var bombs = Board.GetSurroundingBombs(x, y);
-                    if (clicks.Count == 0)
-                        continue;
-                    // Click a square around a clicked where the clicked's bombs have all been found
-                    if (Board.GetSquare(x, y) - bombs.Count == 0) {
-                        ClickSquareList(clicks);
-                        clicked = true;
-                    }
-
-                    // Flag a guaranteed bomb
-                    if (Board.GetSquare(x, y) != clicks.Count + bombs.Count)
-                        continue;
-                    ClickSquareList(clicks, true);
-                    clicked = true;
-                }
-                if (!(tmr.Elapsed.TotalMilliseconds >= 500))
-                    continue;
-                tmr.Restart();
-                if (!FindSweeperWindow(true))
-                    return false;
+            var result = false;
+            var bombs = Board.GetGuaranteedBombs();
+            if (bombs.Count != 0) {
+                result = true;
+                ClickSquareList(bombs, true);
             }
-            return clicked; // We want to continue in the Solver class only if there's no obvious moves left
+            var safe = Board.GetSafeSquares();
+            if (safe.Count != 0) {
+                result = true;
+                ClickSquareList(safe);
+            }
+            return result;
         }
 
         /// <summary>
