@@ -7,10 +7,6 @@ namespace MinesweeperSolver.solvers {
     internal class ProbabilitySolver : Solver {
         private int[,] _prob;
 
-        public override void Update() {
-            base.Update();
-        }
-
         private void UpdateProbabilities() {
             _prob = new int[Board.Rows, Board.Columns];
             for (var y = 0; y < Board.Rows; y++) {
@@ -42,6 +38,7 @@ namespace MinesweeperSolver.solvers {
         }
 
         public override void DoMove() {
+            // TODO: Consider making this base.DoMove and just using DoMove for non-obvious moves
             // Squares which require no guessing
             var clicked = false;
             var tmr = new Stopwatch();
