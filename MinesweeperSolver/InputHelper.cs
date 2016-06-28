@@ -52,9 +52,7 @@ namespace MinesweeperSolver {
 
         public static void RightClick(int x, int y) {
             SetCursorPosition(x, y);
-            Thread.Sleep(Slp);
             MouseEvent(MouseEventFlags.RightDown);
-            Thread.Sleep(Slp);
             MouseEvent(MouseEventFlags.RightUp);
         }
 
