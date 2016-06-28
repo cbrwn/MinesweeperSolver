@@ -15,7 +15,7 @@ namespace MinesweeperSolver {
         /// <summary>
         ///     New instance of a board, with all squares being unclicked
         /// </summary>
-        public Board(int columns = 30, int rows = 16) {
+        private Board(int columns = 30, int rows = 16) {
             Columns = columns;
             Rows = rows;
             Squares = new int[Rows, Columns];

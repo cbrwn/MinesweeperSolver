@@ -94,7 +94,7 @@ namespace MinesweeperSolver.solvers {
             Console.WriteLine($"Guessed ({lx},{ly}) with probability of {lowestProb}%");
             // Guess that it's a bomb if the bomb probability is over 50%
             // Except if the bomb probability is 100% - then something must have gone wrong so we can click it and fail
-            ClickSweeperSquare(lx, ly, lowestProb > 50 && lowestProb != 100);
+            ClickSweeperSquare(lx, ly, lowestProb > 50 && lowestProb >= 100);
         }
 
         public override Bitmap GetBrainImage() {
