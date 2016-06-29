@@ -11,6 +11,8 @@ namespace MinesweeperSolver {
         public readonly int Rows;
         public readonly int[,] Squares;
 
+        private List<Point> _connectedTemp;
+
         /// <summary>
         ///     New instance of a board, with all squares being unclicked
         /// </summary>
@@ -275,6 +277,32 @@ namespace MinesweeperSolver {
             return GetSurroundingBombs(x, y).Count == val;
         }
 
+        public List<Point> GetConnectedSquares(Point s, List<Point> group, bool within = false) {
+            if (!within)
+                _connectedTemp = new List<Point>();
+            var x = s.X;
+            var y = s.Y;
+            if (_connectedTemp.Contains(s))
+                return _connectedTemp;
+            _connectedTemp.Add(s);
+            if (!group.Contains(s))
+                return _connectedTemp;
+            var num = GetSurroundingNumbers(x, y);
+            foreach (var n in num) {
+                var sur = GetSurroundingClicks(n.X, n.Y);
+                foreach (var p in sur) {
+                    if (!group.Contains(p) || _connectedTemp.Contains(p))
+                        continue;
+                    GetConnectedSquares(p, group, true);
+                }
+            }
+            return _connectedTemp;
+        }
+
+        /// <summary>
+        ///     Checks if any square has more adjacent bombs than its required bomb count
+        /// </summary>
+        /// <returns>Whether or not the board is valid</returns>
         public bool IsValid() {
             for (var y = 0; y < Rows; y++) {
                 for (var x = 0; x < Columns; x++) {
@@ -286,6 +314,15 @@ namespace MinesweeperSolver {
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        ///     Checks if a group of squares are fulfilling their neighbours' mine count
+        /// </summary>
+        /// <param name="squares">Group to check</param>
+        /// <returns>Whether or not all squares' neighbours are fulfilled</returns>
+        public bool IsBombful(List<Point> squares) {
+            return squares.Select(s => GetSurroundingNumbers(s.X, s.Y)).All(nums => nums.All(n => IsFulfilled(n.X, n.Y)));
         }
 
         /// <summary>

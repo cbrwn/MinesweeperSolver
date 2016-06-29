@@ -7,18 +7,13 @@ using System.Linq;
 namespace MinesweeperSolver.solvers {
 
     internal class SmartSolver : Solver {
-        private readonly Random rand;
-
         private Dictionary<Point, int> _locs;
         private int _minMines = -1;
         private int[,] _oldBoard;
         private Stopwatch _timer;
 
         private List<Board> _valids;
-
-        public SmartSolver() {
-            rand = new Random();
-        }
+        private List<Point> _squares;
 
         public override bool DoMove() {
             if (base.DoMove())
@@ -32,23 +27,35 @@ namespace MinesweeperSolver.solvers {
 
             */
 
+            var bd = Board.GetBorderSquares();
+
+            if (bd.Count == 0) {
+
+                return true;
+            }
+
+            // Grab connected squares
+            // This splits up the border and makes the solver so much faster, as the amount of possibilities increases exponentially
+            _squares = Board.GetConnectedSquares(bd[0], bd);
+            foreach (var s in bd.Select(b => Board.GetConnectedSquares(b, bd)).Where(s => s.Count < _squares.Count)) {
+                _squares = s;
+            }
             // Get lowest amount of flags
             // TODO: Make this actually do it instead of getting /an/ amount of flags
-            var bd = Board.GetBorderSquares();
             var cb = new Board(Board);
             _minMines = 0;
-            foreach (var p in bd) {
+            foreach (var p in _squares) {
                 var nums = cb.GetSurroundingNumbers(p.X, p.Y);
                 foreach (var n in nums) {
                     var clicks = cb.GetSurroundingClicks(n.X, n.Y);
                     var bombs = cb.GetSurroundingBombs(n.X, n.Y);
                     var val = cb.GetSquare(n);
                     var dif = val - bombs.Count;
-                    if (dif > 0) {
-                        for (var i = 0; i < dif; i++) {
-                            _minMines++;
-                            cb.SetSquare(clicks[i].X, clicks[i].Y, 9);
-                        }
+                    if (dif <= 0)
+                        continue;
+                    for (var i = 0; i < dif; i++) {
+                        _minMines++;
+                        cb.SetSquare(clicks[i].X, clicks[i].Y, 9);
                     }
                 }
             }
@@ -64,34 +71,33 @@ namespace MinesweeperSolver.solvers {
                     for (var x = 0; x < Board.Columns; x++) {
                         if (Board.GetSquare(x, y) != -1)
                             continue;
-                        if (p.Squares[y, x] == 9) {
-                            var pnt = new Point(x, y);
-                            if (_locs.ContainsKey(pnt))
-                                _locs[pnt]++;
-                            else
-                                _locs.Add(pnt, 1);
-                        }
+                        if (p.Squares[y, x] != 9)
+                            continue;
+                        var pnt = new Point(x, y);
+                        if (_locs.ContainsKey(pnt))
+                            _locs[pnt]++;
+                        else
+                            _locs.Add(pnt, 1);
                     }
                 }
             }
 
-            Console.WriteLine($"Getting impossible bomb spots...");
+            Console.WriteLine(@"Getting impossible bomb spots...");
             var border = Board.GetBorderSquares();
-            foreach (var b in border) {
-                if (!_locs.ContainsKey(b))
-                    ClickSweeperSquare(b);
+            foreach (var b in border.Where(b => !_locs.ContainsKey(b))) {
+                ClickSweeperSquare(b);
             }
 
-            Console.WriteLine($"Finding least likely bomb placement...");
+            Console.WriteLine(@"Finding least likely bomb placement...");
             var lowestCount = 1000000;
             var lowestPoint = Point.Empty;
             foreach (var p in _locs.Keys) {
                 if (_locs[p] == possibilities.Count)
                     ClickSweeperSquare(p, true);
-                if (_locs[p] < lowestCount) {
-                    lowestCount = _locs[p];
-                    lowestPoint = p;
-                }
+                if (_locs[p] >= lowestCount)
+                    continue;
+                lowestCount = _locs[p];
+                lowestPoint = p;
             }
             _oldBoard = (int[,]) Board.Squares.Clone();
             if (lowestPoint == Point.Empty) {
@@ -104,11 +110,12 @@ namespace MinesweeperSolver.solvers {
             return true;
         }
 
-        public List<Board> GetValidMinePlacements() {
+        private List<Board> GetValidMinePlacements() {
             // Iterate through every possibility of mine placements and only add the valid ones to the list
-            var border = Board.GetBorderSquares();
-            Console.WriteLine($"Iterating through all mine placements... ({Math.Pow(2, border.Count)} possible combinations, oh no)");
-            var fls = new int[border.Count];
+            //var border = Board.GetBorderSquares();
+
+            Console.WriteLine($"Iterating through all mine placements... ({Math.Pow(2, _squares.Count)} possible combinations - {_squares.Count} possible places)");
+            var fls = new int[_squares.Count];
             _valids = new List<Board>();
             _timer = new Stopwatch();
             _timer.Start();
@@ -125,7 +132,7 @@ namespace MinesweeperSolver.solvers {
                     Board b = null;
                     if (cl.Sum() >= _minMines) {
                         b = ApplyBorderFlags(cl);
-                        if (b.IsBombful()) {
+                        if (b.IsBombful(_squares)) {
                             _valids.Add(b);
                             Console.WriteLine($"({Math.Round(_timer.Elapsed.TotalSeconds, 2)} sec) Found valid board:\n{b.Dump()}");
                             _timer.Restart();
@@ -140,10 +147,9 @@ namespace MinesweeperSolver.solvers {
 
         private Board ApplyBorderFlags(int[] flags) {
             var nboard = new Board(Board);
-            var border = nboard.GetBorderSquares();
-            for (var i = 0; i < border.Count; i++) {
+            for (var i = 0; i < _squares.Count; i++) {
                 if (flags[i] == 1)
-                    nboard.SetSquare(border[i].X, border[i].Y, 9);
+                    nboard.SetSquare(_squares[i].X, _squares[i].Y, 9);
             }
             return nboard;
         }
