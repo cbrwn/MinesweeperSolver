@@ -50,6 +50,11 @@ namespace MinesweeperSolver.solvers {
                 lowestProb = prob;
                 lp = p;
             }
+            if (lowestProb >= 1000) {
+                ClickRandom();
+                Console.WriteLine(@"Clicking random...");
+                return true;
+            }
             Console.WriteLine($"Guessed ({lp.X},{lp.Y}) with probability of {lowestProb}%");
             // Guess that it's a bomb if the bomb probability is over 50%
             // Except if the bomb probability is 100% - then something must have gone wrong so we can click it and fail

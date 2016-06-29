@@ -87,6 +87,17 @@ namespace MinesweeperSolver.solvers {
             foreach (var p in squares)
                 ClickSweeperSquare(p, flag);
         }
+        
+        protected void ClickRandom() {
+            for (var y = 0; y < Board.Rows; y++) {
+                for (var x = 0; x < Board.Columns; x++) {
+                    if (Board.GetSquare(x, y) != -1)
+                        continue;
+                    ClickSweeperSquare(x, y);
+                    return;
+                }
+            }
+        }
 
         /// <summary>
         ///     Grabs a screenshot of the Minesweeper window, returns null if the window hasn't been found

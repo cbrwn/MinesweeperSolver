@@ -30,6 +30,7 @@ namespace MinesweeperSolver.solvers {
             var bd = Board.GetBorderSquares();
 
             if (bd.Count == 0) {
+                Console.WriteLine(@"Clicking random");
                 ClickRandom();
                 return true;
             }
@@ -90,8 +91,7 @@ namespace MinesweeperSolver.solvers {
             }
 
             Console.WriteLine(@"Getting impossible bomb spots...");
-            var border = Board.GetBorderSquares();
-            foreach (var b in border.Where(b => !_locs.ContainsKey(b)))
+            foreach (var b in _squares.Where(b => !_locs.ContainsKey(b)))
                 ClickSweeperSquare(b);
 
             Console.WriteLine(@"Finding least likely bomb placement...");
@@ -114,17 +114,6 @@ namespace MinesweeperSolver.solvers {
             ClickSweeperSquare(lowestPoint);
 
             return true;
-        }
-
-        private void ClickRandom() {
-            for (var y = 0; y < Board.Rows; y++) {
-                for (var x = 0; x < Board.Rows; x++) {
-                    if (Board.GetSquare(x, y) != -1)
-                        continue;
-                    ClickSweeperSquare(x, y);
-                    return;
-                }
-            }
         }
 
         private List<Board> GetValidMinePlacements() {

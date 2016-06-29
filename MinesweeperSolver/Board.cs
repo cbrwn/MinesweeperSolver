@@ -288,13 +288,8 @@ namespace MinesweeperSolver {
             if (!group.Contains(s))
                 return _connectedTemp;
             var num = GetSurroundingNumbers(x, y);
-            foreach (var n in num) {
-                var sur = GetSurroundingClicks(n.X, n.Y);
-                foreach (var p in sur) {
-                    if (!group.Contains(p) || _connectedTemp.Contains(p))
-                        continue;
-                    GetConnectedSquares(p, group, true);
-                }
+            foreach (var p in from n in num where !IsFulfilled(n.X, n.Y) select GetSurroundingClicks(n.X, n.Y) into sur from p in sur.Where(p => @group.Contains(p) && !_connectedTemp.Contains(p)) select p) {
+                GetConnectedSquares(p, @group, true);
             }
             return _connectedTemp;
         }
