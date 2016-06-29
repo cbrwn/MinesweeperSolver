@@ -28,6 +28,7 @@ namespace MinesweeperSolver.solvers {
             */
 
             var bd = Board.GetBorderSquares();
+            _oldBoard = (int[,])Board.Squares.Clone();
 
             if (bd.Count == 0) {
                 Console.WriteLine(@"Clicking random");
@@ -110,7 +111,6 @@ namespace MinesweeperSolver.solvers {
                 lowestCount = _locs[p];
                 lowestPoint = p;
             }
-            _oldBoard = (int[,]) Board.Squares.Clone();
             if (lowestPoint == Point.Empty) {
                 ClickRandom();
                 return true;
@@ -166,7 +166,7 @@ namespace MinesweeperSolver.solvers {
         }
 
         public override Bitmap GetBrainImage() {
-            if (_locs == null)
+            if (_locs == null || _oldBoard == null)
                 return null;
             const int size = 32;
             var fontMulti = (int) (size/8d);
