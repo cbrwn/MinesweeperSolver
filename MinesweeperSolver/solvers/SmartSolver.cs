@@ -39,6 +39,14 @@ namespace MinesweeperSolver.solvers {
             _squares = Board.GetConnectedSquares(bd[0], bd);
             foreach (var s in bd.Select(b => Board.GetConnectedSquares(b, bd)).Where(s => s.Count < _squares.Count))
                 _squares = s;
+
+            if (_squares.Count >= 25) {
+                Console.WriteLine(@"Falling back to probability solver - too many possibilities");
+                var ps = new ProbabilitySolver();
+                ps.Update();
+                return ps.DoMove();
+            }
+
             // Get lowest amount of flags
             // TODO: Make this actually do it instead of getting /an/ amount of flags
             var cb = new Board(Board);
