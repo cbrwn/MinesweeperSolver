@@ -41,7 +41,7 @@ namespace MinesweeperSolver.solvers {
             foreach (var s in bd.Select(b => Board.GetConnectedSquares(b, bd)).Where(s => s.Count < _squares.Count))
                 _squares = s;
 
-            if (_squares.Count >= 25) {
+            if (_squares.Count >= 27) {
                 Console.WriteLine(@"Falling back to probability solver - too many possibilities");
                 var ps = new ProbabilitySolver();
                 ps.Update();
@@ -91,8 +91,13 @@ namespace MinesweeperSolver.solvers {
             }
 
             Console.WriteLine(@"Getting impossible bomb spots...");
-            foreach (var b in _squares.Where(b => !_locs.ContainsKey(b)))
+            var clicked = false;
+            foreach (var b in _squares.Where(b => !_locs.ContainsKey(b))) {
                 ClickSweeperSquare(b);
+                clicked = true;
+            }
+            if (clicked && base.DoMove()) 
+                return true;
 
             Console.WriteLine(@"Finding least likely bomb placement...");
             var lowestCount = 1000000;
@@ -110,7 +115,7 @@ namespace MinesweeperSolver.solvers {
                 ClickRandom();
                 return true;
             }
-            Console.WriteLine($"Safest square is ({lowestPoint.X}, {lowestPoint.Y}) with a count of {lowestCount}({(double) lowestCount/_locs.Values.Max()}%)");
+            Console.WriteLine($"Safest square is ({lowestPoint.X}, {lowestPoint.Y}) with a {100d*((double) lowestCount/_locs.Values.Max())}% bomb chance");
             ClickSweeperSquare(lowestPoint);
 
             return true;
@@ -140,7 +145,7 @@ namespace MinesweeperSolver.solvers {
                         b = ApplyBorderFlags(cl);
                         if (b.IsBombful(_squares)) {
                             _valids.Add(b);
-                            Console.WriteLine($"({Math.Round(_timer.Elapsed.TotalSeconds, 2)} sec) Found valid board:\n{b.Dump()}");
+                            Console.WriteLine($"{_valids.Count} valid boards found ({(int)_timer.Elapsed.TotalMilliseconds}ms)");
                             _timer.Restart();
                         }
                     }
