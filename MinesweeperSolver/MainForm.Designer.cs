@@ -31,6 +31,8 @@ namespace MinesweeperSolver {
             this.strStatusTitle = new System.Windows.Forms.ToolStripStatusLabel();
             this.strStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.strWaiting = new System.Windows.Forms.ToolStripProgressBar();
+            this.strWinRate = new System.Windows.Forms.ToolStripStatusLabel();
+            this.strAvgClear = new System.Windows.Forms.ToolStripStatusLabel();
             this.btnSolve = new System.Windows.Forms.Button();
             this.imgGame = new System.Windows.Forms.PictureBox();
             this.pnlGameImage = new System.Windows.Forms.GroupBox();
@@ -41,8 +43,7 @@ namespace MinesweeperSolver {
             this.chkSaveLoss = new System.Windows.Forms.CheckBox();
             this.chkSaveGame = new System.Windows.Forms.CheckBox();
             this.chkSaveBrain = new System.Windows.Forms.CheckBox();
-            this.strWinRate = new System.Windows.Forms.ToolStripStatusLabel();
-            this.strAvgClear = new System.Windows.Forms.ToolStripStatusLabel();
+            this.cmbSolver = new System.Windows.Forms.ComboBox();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.imgGame)).BeginInit();
             this.pnlGameImage.SuspendLayout();
@@ -85,6 +86,18 @@ namespace MinesweeperSolver {
             this.strWaiting.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.strWaiting.Value = 30;
             this.strWaiting.Visible = false;
+            // 
+            // strWinRate
+            // 
+            this.strWinRate.Name = "strWinRate";
+            this.strWinRate.Size = new System.Drawing.Size(85, 17);
+            this.strWinRate.Text = "100% Win Rate";
+            // 
+            // strAvgClear
+            // 
+            this.strAvgClear.Name = "strAvgClear";
+            this.strAvgClear.Size = new System.Drawing.Size(92, 17);
+            this.strAvgClear.Text = "100% Avg. Clear";
             // 
             // btnSolve
             // 
@@ -200,23 +213,24 @@ namespace MinesweeperSolver {
             this.chkSaveBrain.Text = "Brain";
             this.chkSaveBrain.UseVisualStyleBackColor = true;
             // 
-            // strWinRate
+            // cmbSolver
             // 
-            this.strWinRate.Name = "strWinRate";
-            this.strWinRate.Size = new System.Drawing.Size(85, 17);
-            this.strWinRate.Text = "100% Win Rate";
-            // 
-            // strAvgClear
-            // 
-            this.strAvgClear.Name = "strAvgClear";
-            this.strAvgClear.Size = new System.Drawing.Size(92, 17);
-            this.strAvgClear.Text = "100% Avg. Clear";
+            this.cmbSolver.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbSolver.FormattingEnabled = true;
+            this.cmbSolver.Items.AddRange(new object[] {
+            "Smart",
+            "Probability"});
+            this.cmbSolver.Location = new System.Drawing.Point(319, 22);
+            this.cmbSolver.Name = "cmbSolver";
+            this.cmbSolver.Size = new System.Drawing.Size(68, 21);
+            this.cmbSolver.TabIndex = 13;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(397, 335);
+            this.Controls.Add(this.cmbSolver);
             this.Controls.Add(this.chkSaveBrain);
             this.Controls.Add(this.chkSaveGame);
             this.Controls.Add(this.chkSaveLoss);
@@ -261,6 +275,7 @@ namespace MinesweeperSolver {
         private CheckBox chkSaveBrain;
         private ToolStripStatusLabel strWinRate;
         private ToolStripStatusLabel strAvgClear;
+        private ComboBox cmbSolver;
     }
 }
 

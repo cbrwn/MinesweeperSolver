@@ -19,6 +19,7 @@ namespace MinesweeperSolver {
             if (!Directory.Exists(_screenshotLocation))
                 Directory.CreateDirectory(_screenshotLocation);
             SetToolTips();
+            cmbSolver.SelectedIndex = 0;
         }
 
         private void SetToolTips() {
@@ -33,7 +34,17 @@ namespace MinesweeperSolver {
                 btnSolve.Enabled = false; // Let the thread re-enable this when it's stopped
                 strStatus.Text = @"Stopping...";
             } else {
-                _solver = new SmartSolver();
+                switch (cmbSolver.SelectedIndex) {
+                    case 0:
+                        _solver = new SmartSolver();
+                        break;
+                    case 1:
+                        _solver = new ProbabilitySolver();
+                        break;
+                    default:
+                        _solver = new ProbabilitySolver();
+                        break;
+                }
                 new Thread(SolveSweeper).Start();
             }
         }
