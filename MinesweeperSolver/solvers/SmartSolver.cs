@@ -29,8 +29,10 @@ namespace MinesweeperSolver.solvers {
 
             var bd = Board.GetBorderSquares();
 
-            if (bd.Count == 0)
+            if (bd.Count == 0) {
+                ClickRandom();
                 return true;
+            }
 
             // Grab connected squares
             // This splits up the border and makes the solver so much faster, as the amount of possibilities increases exponentially
@@ -97,13 +99,24 @@ namespace MinesweeperSolver.solvers {
             }
             _oldBoard = (int[,]) Board.Squares.Clone();
             if (lowestPoint == Point.Empty) {
-                Console.WriteLine(@"make random");
+                ClickRandom();
                 return true;
             }
             Console.WriteLine($"Safest square is ({lowestPoint.X}, {lowestPoint.Y}) with a count of {lowestCount}({(double) lowestCount/_locs.Values.Max()}%)");
             ClickSweeperSquare(lowestPoint);
 
             return true;
+        }
+
+        private void ClickRandom() {
+            for (var y = 0; y < Board.Rows; y++) {
+                for (var x = 0; x < Board.Rows; x++) {
+                    if (Board.GetSquare(x, y) != -1)
+                        continue;
+                    ClickSweeperSquare(x, y);
+                    return;
+                }
+            }
         }
 
         private List<Board> GetValidMinePlacements() {
