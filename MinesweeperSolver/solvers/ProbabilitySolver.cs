@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 
 namespace MinesweeperSolver.solvers {
@@ -62,8 +61,8 @@ namespace MinesweeperSolver.solvers {
             UpdateProbabilities();
 
             const int size = 32;
-            var fontMulti = (int)(size / 8d);
-            var result = new Bitmap(Board.Columns * size, Board.Rows * size);
+            const int fontMulti = (int) (size/8d);
+            var result = new Bitmap(Board.Columns*size, Board.Rows*size);
             using (var g = Graphics.FromImage(result)) {
                 for (var y = 0; y < Board.Rows; y++) {
                     for (var x = 0; x < Board.Columns; x++) {
@@ -77,18 +76,18 @@ namespace MinesweeperSolver.solvers {
                         else if (pos > 100)
                             col = Color.DarkBlue;
                         else if (pos > 50) {
-                            var n = (int)(255 * ((pos - 50) / 50d));
+                            var n = (int) (255*((pos - 50)/50d));
                             col = Color.FromArgb(255, Math.Abs(n - 255), 0);
                         } else if (pos >= 0) {
-                            var n = (int)(255 * (pos / 50d));
+                            var n = (int) (255*(pos/50d));
                             col = Color.FromArgb(n, 255, 0);
                         }
-                        g.FillRectangle(new SolidBrush(col), x * size, y * size, size, size);
+                        g.FillRectangle(new SolidBrush(col), x*size, y*size, size, size);
                         if (val > 0 && val < 9) {
                             var textCol = Board.NumberColors[val];
-                            g.DrawString(val.ToString(), new Font(FontFamily.GenericMonospace, 5 * fontMulti, FontStyle.Bold), new SolidBrush(textCol), fontMulti + x * size, fontMulti / 2 + y * size);
+                            g.DrawString(val.ToString(), new Font(FontFamily.GenericMonospace, 5*fontMulti, FontStyle.Bold), new SolidBrush(textCol), fontMulti + x*size, fontMulti/2 + y*size);
                         }
-                        g.DrawRectangle(new Pen(Color.Gray), x * size, y * size, size, size);
+                        g.DrawRectangle(new Pen(Color.Gray), x*size, y*size, size, size);
                     }
                 }
             }

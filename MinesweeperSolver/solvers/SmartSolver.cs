@@ -10,10 +10,10 @@ namespace MinesweeperSolver.solvers {
         private Dictionary<Point, int> _locs;
         private int _minMines = -1;
         private int[,] _oldBoard;
+        private List<Point> _squares;
         private Stopwatch _timer;
 
         private List<Board> _valids;
-        private List<Point> _squares;
 
         public override bool DoMove() {
             if (base.DoMove())
@@ -29,17 +29,14 @@ namespace MinesweeperSolver.solvers {
 
             var bd = Board.GetBorderSquares();
 
-            if (bd.Count == 0) {
-
+            if (bd.Count == 0)
                 return true;
-            }
 
             // Grab connected squares
             // This splits up the border and makes the solver so much faster, as the amount of possibilities increases exponentially
             _squares = Board.GetConnectedSquares(bd[0], bd);
-            foreach (var s in bd.Select(b => Board.GetConnectedSquares(b, bd)).Where(s => s.Count < _squares.Count)) {
+            foreach (var s in bd.Select(b => Board.GetConnectedSquares(b, bd)).Where(s => s.Count < _squares.Count))
                 _squares = s;
-            }
             // Get lowest amount of flags
             // TODO: Make this actually do it instead of getting /an/ amount of flags
             var cb = new Board(Board);
@@ -84,9 +81,8 @@ namespace MinesweeperSolver.solvers {
 
             Console.WriteLine(@"Getting impossible bomb spots...");
             var border = Board.GetBorderSquares();
-            foreach (var b in border.Where(b => !_locs.ContainsKey(b))) {
+            foreach (var b in border.Where(b => !_locs.ContainsKey(b)))
                 ClickSweeperSquare(b);
-            }
 
             Console.WriteLine(@"Finding least likely bomb placement...");
             var lowestCount = 1000000;
