@@ -45,8 +45,6 @@ namespace MinesweeperSolver.solvers {
             var lowestProb = 1000d;
             var lp = Point.Empty;
             foreach (var p in Board.GetBorderSquares()) {
-                if (Board.GetSquare(p) != -1)
-                    continue;
                 var prob = _prob[p.Y, p.X];
                 if (prob >= lowestProb)
                     continue;

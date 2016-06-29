@@ -33,7 +33,7 @@ namespace MinesweeperSolver {
                 btnSolve.Enabled = false; // Let the thread re-enable this when it's stopped
                 strStatus.Text = @"Stopping...";
             } else {
-                _solver = new ProbabilitySolver();
+                _solver = new SmartSolver();
                 new Thread(SolveSweeper).Start();
             }
         }
@@ -98,8 +98,11 @@ namespace MinesweeperSolver {
                             Directory.CreateDirectory(directory);
                         var filename = Path.Combine(directory, (_solver.Board.IsComplete ? @"win" : $"{_solver.Board.Score}%") + $"-{(int) DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}-");
                         if (chkSaveBrain.Checked) {
-                            _solver.GetBrainImage().Save(filename + "brain.png");
-                            Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}brain.png");
+                            var brain = _solver.GetBrainImage();
+                            if (brain != null) {
+                                _solver.GetBrainImage().Save(filename + "brain.png");
+                                Console.WriteLine($" -> Saved screenshot to {filename.Replace(AppDomain.CurrentDomain.BaseDirectory, "")}brain.png");
+                            }
                         }
                         if (chkSaveGame.Checked) {
                             _solver.GetMinesweeperScreenshot().Save(filename + "game.png");

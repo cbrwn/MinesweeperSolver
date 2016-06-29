@@ -26,6 +26,12 @@ namespace MinesweeperSolver {
         }
 
         /// <summary>
+        ///     Makes a shallow copy of a board
+        /// </summary>
+        /// <param name="toCopy">Board to be copied</param>
+        public Board(Board toCopy) : this((int[,]) toCopy.Squares.Clone()) { }
+
+        /// <summary>
         ///     New instance of a Board, made using a bitmap
         /// </summary>
         /// <param name="boardImage">The bitmap of the whole Minesweeper window</param>
@@ -107,7 +113,7 @@ namespace MinesweeperSolver {
                 }
                 // Black in middle - could be a bomb!
                 if (Squares[row, col] == 7 && image.GetPixel(xpos + 6, ypos + 6) == Color.FromArgb(255, 255, 255)) {
-                    // Bomb has white shimmer on it at 5,5 to 7,7
+                    // Bomb has white shimmer on it at 6,6 to 8,8
                     Squares[row, col] = 100;
                 }
             }
@@ -176,11 +182,15 @@ namespace MinesweeperSolver {
             return result;
         }
 
+        /// <summary>
+        ///     Grabs a list of all "border" squares - squares which border opened squares
+        /// </summary>
+        /// <returns>List of squares next to opened squares</returns>
         public List<Point> GetBorderSquares() {
             var result = new List<Point>();
             for (var y = 0; y < Rows; y++) {
                 for (var x = 0; x < Columns; x++) {
-                    if (GetSquare(x, y) != -1 && GetSquare(x, y) != 9) // Only want unclicked squares
+                    if (GetSquare(x, y) != -1) // Only want unclicked squares
                         continue;
                     if (GetSurroundingNumbers(x, y).Count > 0)
                         result.Add(new Point(x, y));
@@ -189,6 +199,10 @@ namespace MinesweeperSolver {
             return result;
         }
 
+        /// <summary>
+        ///     Grabs a list of all squares who are next to a number whose bomb count has already been fulfilled
+        /// </summary>
+        /// <returns>List of squares which guaranteed to be safe to click</returns>
         public List<Point> GetSafeSquares() {
             var result = new List<Point>();
             for (var y = 0; y < Rows; y++) {
@@ -196,11 +210,9 @@ namespace MinesweeperSolver {
                     if (GetSquare(x, y) < 0 || GetSquare(x, y) > 8)
                         continue;
                     var clicks = GetSurroundingClicks(x, y);
-                    var bombs = GetSurroundingBombs(x, y);
                     if (clicks.Count == 0)
                         continue;
-                    // Click a square around a clicked where the clicked's bombs have all been found
-                    if (GetSquare(x, y) - bombs.Count != 0)
+                    if (!IsFulfilled(x, y))
                         continue;
                     foreach (var p in clicks.Where(p => !result.Contains(p)))
                         result.Add(p);
@@ -209,6 +221,10 @@ namespace MinesweeperSolver {
             return result;
         }
 
+        /// <summary>
+        ///     Grabs a list of all squares which are guaranteed to be mines
+        /// </summary>
+        /// <returns>List of squares which are guaranteed to be dangerous and should be flagged</returns>
         public List<Point> GetGuaranteedBombs() {
             var result = new List<Point>();
             for (var y = 0; y < Rows; y++) {
@@ -247,20 +263,76 @@ namespace MinesweeperSolver {
         }
 
         /// <summary>
-        ///     Checks if all uncovered squares have their bomb count satisfied
+        ///     Checks if a square's bomb count has ben fulfilled
         /// </summary>
-        /// <returns>Whether the board has the correct amount of bombs</returns>
-        private bool IsBombful() {
+        /// <param name="x">Column of the square</param>
+        /// <param name="y">Row of the square</param>
+        /// <returns>Whether or not the square's surrounding bombs equal its value</returns>
+        public bool IsFulfilled(int x, int y) {
+            var val = GetSquare(x, y);
+            if (val < 0 || val > 8)
+                return true;
+            return GetSurroundingBombs(x, y).Count == val;
+        }
+
+        public bool IsValid() {
             for (var y = 0; y < Rows; y++) {
                 for (var x = 0; x < Columns; x++) {
                     var val = GetSquare(x, y);
                     if (val < 0 || val > 8)
                         continue;
-                    if (GetSurroundingBombs(x, y).Count != val)
+                    if (GetSurroundingBombs(x, y).Count > val)
                         return false;
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        ///     Checks if all uncovered squares have their bomb count satisfied
+        /// </summary>
+        /// <returns>Whether the board has the correct amount of bombs</returns>
+        public bool IsBombful() {
+            for (var y = 0; y < Rows; y++) {
+                for (var x = 0; x < Columns; x++) {
+                    if (!IsFulfilled(x, y))
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        ///     Throw the board into a string for outputting purposes
+        /// </summary>
+        /// <returns>A string which represents the current board state</returns>
+        public string Dump() {
+            var result = "";
+            for (var y = 0; y < Rows; y++) {
+                for (var x = 0; x < Columns; x++) {
+                    var val = GetSquare(x, y);
+                    switch (val) {
+                        case 9:
+                            result += "x";
+                            break;
+                        case 0:
+                            result += " ";
+                            break;
+                        case -1:
+                            result += "o";
+                            break;
+                        case 100:
+                            result += "*";
+                            break;
+                        default:
+                            result += val.ToString();
+                            break;
+                    }
+                    result += " ";
+                }
+                result += "\n";
+            }
+            return result;
         }
     }
 
