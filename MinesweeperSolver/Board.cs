@@ -132,6 +132,15 @@ namespace MinesweeperSolver {
         }
 
         /// <summary>
+        ///     Gets the value of a square at a specific point
+        /// </summary>
+        /// <param name="pos">Point of square</param>
+        /// <returns>The number of bombs next to the square</returns>
+        public int GetSquare(Point pos) {
+            return Squares[pos.Y, pos.X];
+        }
+
+        /// <summary>
         ///     Sets a specific square to a value
         ///     Mostly used just to keep x,y ordering and reduce confusion with y,x of the array
         /// </summary>
@@ -143,12 +152,12 @@ namespace MinesweeperSolver {
         }
 
         /// <summary>
-        ///     Gets the value of a square at a specific point
+        ///     Sets a specific square to a value
         /// </summary>
         /// <param name="pos">Point of square</param>
-        /// <returns>The number of bombs next to the square</returns>
-        public int GetSquare(Point pos) {
-            return Squares[pos.Y, pos.X];
+        /// <param name="value">Value to be set to the square</param>
+        public void SetSquare(Point pos, int value) {
+            SetSquare(pos.X, pos.Y, value);
         }
 
         /// <summary>
@@ -181,6 +190,24 @@ namespace MinesweeperSolver {
             var result = new List<Point>();
             for (var i = 0; i < 9; i++)
                 result.AddRange(GetSurrounding(x, y, i));
+            return result;
+        }
+
+        /// <summary>
+        ///     Grabs a list of squares with value 'type' which surround the square at (x,y)
+        /// </summary>
+        /// <param name="x">Column of the square to search around</param>
+        /// <param name="y">Row of the square to search around</param>
+        /// <param name="type">Value of squares to return</param>
+        /// <returns>List of squares of type 'type' which surround the square</returns>
+        private List<Point> GetSurrounding(int x, int y, int type = -2) {
+            var result = new List<Point>();
+            for (var i = Math.Max(0, y - 1); i <= Math.Min(Rows - 1, y + 1); i++) {
+                for (var j = Math.Max(0, x - 1); j <= Math.Min(Columns - 1, x + 1); j++) {
+                    if (Squares[i, j] == type || type == -2)
+                        result.Add(new Point(j, i));
+                }
+            }
             return result;
         }
 
@@ -247,24 +274,6 @@ namespace MinesweeperSolver {
         }
 
         /// <summary>
-        ///     Grabs a list of squares with value 'type' which surround the square at (x,y)
-        /// </summary>
-        /// <param name="x">Column of the square to search around</param>
-        /// <param name="y">Row of the square to search around</param>
-        /// <param name="type">Value of squares to return</param>
-        /// <returns>List of squares of type 'type' which surround the square</returns>
-        private List<Point> GetSurrounding(int x, int y, int type = -2) {
-            var result = new List<Point>();
-            for (var i = Math.Max(0, y - 1); i <= Math.Min(Rows - 1, y + 1); i++) {
-                for (var j = Math.Max(0, x - 1); j <= Math.Min(Columns - 1, x + 1); j++) {
-                    if (Squares[i, j] == type || type == -2)
-                        result.Add(new Point(j, i));
-                }
-            }
-            return result;
-        }
-
-        /// <summary>
         ///     Checks if a square's bomb count has ben fulfilled
         /// </summary>
         /// <param name="x">Column of the square</param>
@@ -277,6 +286,13 @@ namespace MinesweeperSolver {
             return GetSurroundingBombs(x, y).Count == val;
         }
 
+        /// <summary>
+        ///     Very badly gets all squares connected to point s
+        /// </summary>
+        /// <param name="s">Point to search from</param>
+        /// <param name="group">Group of points to search</param>
+        /// <param name="within">Whether or not this was called by itself (so we can reset the variable)</param>
+        /// <returns>List of unclicked squares in group connected to point s</returns>
         public List<Point> GetConnectedSquares(Point s, List<Point> group, bool within = false) {
             if (!within)
                 _connectedTemp = new List<Point>();
@@ -288,9 +304,8 @@ namespace MinesweeperSolver {
             if (!group.Contains(s))
                 return _connectedTemp;
             var num = GetSurroundingNumbers(x, y);
-            foreach (var p in from n in num where !IsFulfilled(n.X, n.Y) select GetSurroundingClicks(n.X, n.Y) into sur from p in sur.Where(p => @group.Contains(p) && !_connectedTemp.Contains(p)) select p) {
+            foreach (var p in from n in num where !IsFulfilled(n.X, n.Y) select GetSurroundingClicks(n.X, n.Y) into sur from p in sur.Where(p => @group.Contains(p) && !_connectedTemp.Contains(p)) select p)
                 GetConnectedSquares(p, @group, true);
-            }
             return _connectedTemp;
         }
 
@@ -301,14 +316,24 @@ namespace MinesweeperSolver {
         public bool IsValid() {
             for (var y = 0; y < Rows; y++) {
                 for (var x = 0; x < Columns; x++) {
-                    var val = GetSquare(x, y);
-                    if (val < 0 || val > 8)
-                        continue;
-                    if (GetSurroundingBombs(x, y).Count > val)
+                    if (!IsValid(x, y))
                         return false;
                 }
             }
             return true;
+        }
+
+        private bool IsValid(int x, int y) {
+            var val = GetSquare(x, y);
+            // Uncovered squares are always "valid"
+            if (val < 0 || val > 8)
+                return true;
+            var bombs = GetSurroundingBombs(x, y);
+            // Too many bombs
+            if (bombs.Count > val)
+                return false;
+            // Not enough unopened squares
+            return val <= bombs.Count + GetSurroundingClicks(x, y).Count;
         }
 
         /// <summary>
@@ -316,7 +341,7 @@ namespace MinesweeperSolver {
         /// </summary>
         /// <param name="squares">Group to check</param>
         /// <returns>Whether or not all squares' neighbours are fulfilled</returns>
-        public bool IsBombful(List<Point> squares) {
+        public bool IsBombful(IEnumerable<Point> squares) {
             return squares.Select(s => GetSurroundingNumbers(s.X, s.Y)).All(nums => nums.All(n => IsFulfilled(n.X, n.Y)));
         }
 

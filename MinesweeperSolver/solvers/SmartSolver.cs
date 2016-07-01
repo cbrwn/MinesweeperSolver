@@ -87,11 +87,21 @@ namespace MinesweeperSolver.solvers {
             Console.WriteLine(@"Getting impossible bomb spots...");
             var clicked = false;
             foreach (var b in _squares.Where(b => !_locs.ContainsKey(b))) {
+                Console.WriteLine(@" -> Found one!");
                 ClickSweeperSquare(b);
                 clicked = true;
             }
-            if (clicked && base.DoMove())
+
+            Console.WriteLine(@"Getting guaranteed bomb locations...");
+            foreach (var p in _locs.Keys.Where(p => _locs[p] == _locs.Count)) {
+                Console.WriteLine(@" -> Found one!");
+                ClickSweeperSquare(p, true);
+                clicked = true;
+            }
+            if (clicked && base.DoMove()) {
+                Console.WriteLine(@"Able to continue without guessing...");
                 return true;
+            }
 
             Console.WriteLine(@"Finding least likely bomb placement...");
             var lowestCount = 1000000;
@@ -123,60 +133,42 @@ namespace MinesweeperSolver.solvers {
             //var border = Board.GetBorderSquares();
 
             Console.WriteLine($"Iterating through all mine placements... ({Math.Pow(2, _squares.Count)} possible combinations - {_squares.Count} possible places)");
-            var fls = new int[_squares.Count];
             _valids = new List<Board>();
             _timer = new Stopwatch();
             _timer.Start();
-            GetFlagCombinations(fls, fls.Length - 1);
+            GetFlagCombinations(Board, 0);
             _timer.Stop();
             return _valids;
         }
 
-        /// <summary>
-        ///     Recursively put flag combinations into _valids
-        /// </summary>
-        /// <param name="list">int array of 0/1 for no flag/flag which correspond with each _square</param>
-        /// <param name="depth">Depth of recursion</param>
-        private void GetFlagCombinations(int[] list, int depth) {
+        private void GetFlagCombinations(Board board, int depth) {
             while (true) {
-                for (var i = 0; i < 2; i++) {
-                    var cl = (int[]) list.Clone();
-                    cl[depth] = i;
-                    Board b = null;
-                    if (cl.Sum() >= _minMines) {
-                        b = ApplyBorderFlags(cl);
-                        if (b.IsBombful(_squares)) {
-                            _valids.Add(b);
-                            Console.WriteLine($"{_valids.Count} valid boards found ({(int) _timer.Elapsed.TotalMilliseconds}ms)");
-                            _timer.Restart();
-                        }
-                    }
-                    if ((b == null || b.IsValid()) && depth > 0)
-                        GetFlagCombinations(cl, depth - 1);
+                var tboard = new Board(board);
+                if (!tboard.IsValid())
+                    return;
+                if (depth == _squares.Count) {
+                    if (!tboard.IsBombful(_squares))
+                        return;
+                    _valids.Add(tboard);
+                    if (!(_timer.Elapsed.TotalSeconds >= 1))
+                        return;
+                    Console.WriteLine($"{_valids.Count} valid boards found ({(int) _timer.Elapsed.TotalMilliseconds}ms)");
+                    _timer.Restart();
+                    return;
                 }
-                break;
+                tboard.SetSquare(_squares[depth], 9);
+                GetFlagCombinations(tboard, depth + 1);
+                tboard.SetSquare(_squares[depth], -1);
+                board = tboard;
+                depth = depth + 1;
             }
-        }
-
-        /// <summary>
-        ///     Applies flag states from flags to a copy of our board using _squares
-        /// </summary>
-        /// <param name="flags">int array of flag states</param>
-        /// <returns>Altered Board with flag states applied</returns>
-        private Board ApplyBorderFlags(int[] flags) {
-            var nboard = new Board(Board);
-            for (var i = 0; i < _squares.Count; i++) {
-                if (flags[i] == 1)
-                    nboard.SetSquare(_squares[i].X, _squares[i].Y, 9);
-            }
-            return nboard;
         }
 
         public override Bitmap GetBrainImage() {
             if (_locs == null || _oldBoard == null)
                 return null;
             const int size = 32;
-            var fontMulti = (int) (size/8d);
+            const int fontMulti = (int) (size/8d);
             var result = new Bitmap(Board.Columns*size, Board.Rows*size);
             using (var g = Graphics.FromImage(result)) {
                 for (var y = 0; y < Board.Rows; y++) {
