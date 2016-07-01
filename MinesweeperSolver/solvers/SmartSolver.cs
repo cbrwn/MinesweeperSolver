@@ -18,17 +18,10 @@ namespace MinesweeperSolver.solvers {
         public override bool DoMove() {
             if (base.DoMove())
                 return true;
-            /* notes:
 
-            find every possible mine combination based on opened squares
-            use those to guess the least likely square for a mine
-            this is different to the old solver because that one only used adjacent squares to find the probability
-            while this one will assess all possibilities and see which squares have mines in more instances
-
-            */
-
+            // TODO: Move most of this stuff to Update
             var bd = Board.GetBorderSquares();
-            _oldBoard = (int[,])Board.Squares.Clone();
+            _oldBoard = (int[,]) Board.Squares.Clone();
 
             if (bd.Count == 0) {
                 Console.WriteLine(@"Clicking random");
@@ -42,7 +35,7 @@ namespace MinesweeperSolver.solvers {
             foreach (var s in bd.Select(b => Board.GetConnectedSquares(b, bd)).Where(s => s.Count < _squares.Count))
                 _squares = s;
 
-            if (_squares.Count >= 27) {
+            if (_squares.Count >= 35) {
                 Console.WriteLine(@"Falling back to probability solver - too many possibilities");
                 var ps = new ProbabilitySolver();
                 ps.Update();
@@ -97,7 +90,7 @@ namespace MinesweeperSolver.solvers {
                 ClickSweeperSquare(b);
                 clicked = true;
             }
-            if (clicked && base.DoMove()) 
+            if (clicked && base.DoMove())
                 return true;
 
             Console.WriteLine(@"Finding least likely bomb placement...");
@@ -121,6 +114,10 @@ namespace MinesweeperSolver.solvers {
             return true;
         }
 
+        /// <summary>
+        ///     Grab all valid combinations of mine placements
+        /// </summary>
+        /// <returns>List of valid boards</returns>
         private List<Board> GetValidMinePlacements() {
             // Iterate through every possibility of mine placements and only add the valid ones to the list
             //var border = Board.GetBorderSquares();
@@ -135,6 +132,11 @@ namespace MinesweeperSolver.solvers {
             return _valids;
         }
 
+        /// <summary>
+        ///     Recursively put flag combinations into _valids
+        /// </summary>
+        /// <param name="list">int array of 0/1 for no flag/flag which correspond with each _square</param>
+        /// <param name="depth">Depth of recursion</param>
         private void GetFlagCombinations(int[] list, int depth) {
             while (true) {
                 for (var i = 0; i < 2; i++) {
@@ -145,7 +147,7 @@ namespace MinesweeperSolver.solvers {
                         b = ApplyBorderFlags(cl);
                         if (b.IsBombful(_squares)) {
                             _valids.Add(b);
-                            Console.WriteLine($"{_valids.Count} valid boards found ({(int)_timer.Elapsed.TotalMilliseconds}ms)");
+                            Console.WriteLine($"{_valids.Count} valid boards found ({(int) _timer.Elapsed.TotalMilliseconds}ms)");
                             _timer.Restart();
                         }
                     }
@@ -156,6 +158,11 @@ namespace MinesweeperSolver.solvers {
             }
         }
 
+        /// <summary>
+        ///     Applies flag states from flags to a copy of our board using _squares
+        /// </summary>
+        /// <param name="flags">int array of flag states</param>
+        /// <returns>Altered Board with flag states applied</returns>
         private Board ApplyBorderFlags(int[] flags) {
             var nboard = new Board(Board);
             for (var i = 0; i < _squares.Count; i++) {

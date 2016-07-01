@@ -87,7 +87,10 @@ namespace MinesweeperSolver.solvers {
             foreach (var p in squares)
                 ClickSweeperSquare(p, flag);
         }
-        
+
+        /// <summary>
+        ///     Clicks the first found square - not exactly random
+        /// </summary>
         protected void ClickRandom() {
             for (var y = 0; y < Board.Rows; y++) {
                 for (var x = 0; x < Board.Columns; x++) {
