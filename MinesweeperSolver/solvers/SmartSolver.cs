@@ -107,8 +107,6 @@ namespace MinesweeperSolver.solvers {
             var lowestCount = 1000000;
             var lowestPoint = Point.Empty;
             foreach (var p in _locs.Keys) {
-                if (_locs[p] == possibilities.Count)
-                    ClickSweeperSquare(p, true);
                 if (_locs[p] >= lowestCount)
                     continue;
                 lowestCount = _locs[p];
