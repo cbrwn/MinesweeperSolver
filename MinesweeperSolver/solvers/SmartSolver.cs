@@ -8,7 +8,6 @@ namespace MinesweeperSolver.solvers {
 
     internal class SmartSolver : Solver {
         private Dictionary<Point, int> _locs;
-        private int _minMines = -1;
         private int[,] _oldBoard;
         private List<Point> _squares;
         private Stopwatch _timer;
@@ -41,27 +40,6 @@ namespace MinesweeperSolver.solvers {
                 ps.Update();
                 return ps.DoMove();
             }
-
-            // Get lowest amount of flags
-            // TODO: Make this actually do it instead of getting /an/ amount of flags
-            var cb = new Board(Board);
-            _minMines = 0;
-            foreach (var p in _squares) {
-                var nums = cb.GetSurroundingNumbers(p.X, p.Y);
-                foreach (var n in nums) {
-                    var clicks = cb.GetSurroundingClicks(n.X, n.Y);
-                    var bombs = cb.GetSurroundingBombs(n.X, n.Y);
-                    var val = cb.GetSquare(n);
-                    var dif = val - bombs.Count;
-                    if (dif <= 0)
-                        continue;
-                    for (var i = 0; i < dif; i++) {
-                        _minMines++;
-                        cb.SetSquare(clicks[i].X, clicks[i].Y, 9);
-                    }
-                }
-            }
-            _minMines /= 2;
 
             var possibilities = GetValidMinePlacements();
 
@@ -106,9 +84,7 @@ namespace MinesweeperSolver.solvers {
             Console.WriteLine(@"Finding least likely bomb placement...");
             var lowestCount = 1000000;
             var lowestPoint = Point.Empty;
-            foreach (var p in _locs.Keys) {
-                if (_locs[p] >= lowestCount)
-                    continue;
+            foreach (var p in _locs.Keys.Where(p => _locs[p] < lowestCount)) {
                 lowestCount = _locs[p];
                 lowestPoint = p;
             }
