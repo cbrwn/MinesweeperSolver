@@ -1,2 +1,3 @@
 language: csharp
 solution: MinesweeperSolver.sln
+script: xbuild /p:Configuration=Debug MinesweeperSolver.sln
