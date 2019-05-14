@@ -36,7 +36,7 @@ namespace MinesweeperSolver {
             } else {
                 switch (cmbSolver.SelectedIndex) {
                     case 0:
-                        _solver = new SmartSolver();
+                        _solver = new NewSolver();
                         break;
                     case 1:
                         _solver = new ProbabilitySolver();
@@ -141,7 +141,7 @@ namespace MinesweeperSolver {
                 if (_solver.Board.IsNew) {
                     Console.WriteLine(@"============================");
                     Console.WriteLine(@"New game!");
-                    _solver.ClickSweeperSquare(0, 0);
+                    _solver.ClickSweeperSquare(_solver.Board.Columns / 2, _solver.Board.Rows / 2);
                     continue;
                 }
 

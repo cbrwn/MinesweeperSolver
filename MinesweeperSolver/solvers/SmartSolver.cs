@@ -84,13 +84,20 @@ namespace MinesweeperSolver.solvers {
             Console.WriteLine(@"Finding least likely bomb placement...");
             var lowestCount = 1000000;
             var lowestPoint = Point.Empty;
-            foreach (var p in _locs.Keys.Where(p => _locs[p] < lowestCount)) {
+            foreach (var p in _locs.Keys) {
+                if (_locs[p] > lowestCount)
+                    continue;
                 lowestCount = _locs[p];
                 lowestPoint = p;
             }
             if (lowestPoint == Point.Empty) {
                 ClickRandom();
                 return true;
+            }
+            float percentage = 100.0f * ((float)lowestCount / _locs.Values.Max());
+            if(percentage > 80.0f)
+            {
+                Console.WriteLine("hmm something is fishy");
             }
             Console.WriteLine($"Safest square is ({lowestPoint.X}, {lowestPoint.Y}) with a {100d*((double) lowestCount/_locs.Values.Max())}% bomb chance");
             ClickSweeperSquare(lowestPoint);

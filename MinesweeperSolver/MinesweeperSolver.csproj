@@ -59,6 +59,7 @@
     <Compile Include="MineSolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScreenHelper.cs" />
+    <Compile Include="solvers\NewSolver.cs" />
     <Compile Include="solvers\SmartSolver.cs" />
     <Compile Include="solvers\Solver.cs" />
     <Compile Include="solvers\ProbabilitySolver.cs" />

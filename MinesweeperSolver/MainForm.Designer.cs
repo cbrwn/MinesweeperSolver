@@ -58,22 +58,22 @@ namespace MinesweeperSolver {
             this.strWaiting,
             this.strWinRate,
             this.strAvgClear});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 313);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 323);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(397, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(403, 22);
             this.statusStrip1.TabIndex = 0;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // strStatusTitle
             // 
             this.strStatusTitle.Name = "strStatusTitle";
-            this.strStatusTitle.Size = new System.Drawing.Size(42, 17);
+            this.strStatusTitle.Size = new System.Drawing.Size(46, 17);
             this.strStatusTitle.Text = "Status:";
             // 
             // strStatus
             // 
             this.strStatus.Name = "strStatus";
-            this.strStatus.Size = new System.Drawing.Size(26, 17);
+            this.strStatus.Size = new System.Drawing.Size(28, 17);
             this.strStatus.Text = "Idle";
             // 
             // strWaiting
@@ -90,13 +90,13 @@ namespace MinesweeperSolver {
             // strWinRate
             // 
             this.strWinRate.Name = "strWinRate";
-            this.strWinRate.Size = new System.Drawing.Size(85, 17);
+            this.strWinRate.Size = new System.Drawing.Size(91, 17);
             this.strWinRate.Text = "100% Win Rate";
             // 
             // strAvgClear
             // 
             this.strAvgClear.Name = "strAvgClear";
-            this.strAvgClear.Size = new System.Drawing.Size(92, 17);
+            this.strAvgClear.Size = new System.Drawing.Size(99, 17);
             this.strAvgClear.Text = "100% Avg. Clear";
             // 
             // btnSolve
@@ -229,7 +229,7 @@ namespace MinesweeperSolver {
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(397, 335);
+            this.ClientSize = new System.Drawing.Size(403, 345);
             this.Controls.Add(this.cmbSolver);
             this.Controls.Add(this.chkSaveBrain);
             this.Controls.Add(this.chkSaveGame);
